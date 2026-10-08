@@ -11,90 +11,42 @@
 </style>
 </head>
 <body>
-<div id="login" class="login"><div class="login-card"><h1>Network Traffic Monitoring</h1><p>System login</p><div class="field"><label>Username</label><input id="username" value="admin"></div><div class="field"><label>Password</label><input id="password" type="password" value="admin123"></div><div id="loginError" class="error"></div><button class="btn" onclick="login()">Login</button><div class="hint"><b>Demo account:</b> admin / admin123</div></div></div>
+<div id="login" class="login"><div class="login-card"><h1>Network Traffic Monitoring</h1><p>System login</p><div class="field"><label>Username</label><input id="username" placeholder="Enter username" autocomplete="username"></div><div class="field"><label>Password</label><input id="password" type="password" placeholder="Enter password" autocomplete="current-password"></div><div id="loginError" class="error"></div><button class="btn" onclick="login()">Login</button></div></div>
 <div id="app" class="app hidden"><div class="topbar"><h2>Network Traffic Monitoring System <span id="connection" class="connection disconnected">Connecting...</span></h2><span>Logged in as <b id="loggedUser">Administrator</b> &nbsp;|&nbsp; <a href="#" style="color:white" onclick="logout()">Logout</a></span></div><div class="layout"><aside class="sidebar"><button class="nav active" onclick="showPage('dashboard',this)">📊 Dashboard</button><button class="nav" onclick="showPage('devices',this)">🖥 Devices</button><button class="nav" onclick="showPage('traffic',this)">📈 Traffic Log</button><button class="nav" onclick="showPage('reports',this)">📄 Reports</button></aside><main class="content">
 <section id="dashboard" class="page"><div class="page-title"><h1>Dashboard</h1><button class="btn" onclick="pollAll()">Poll Devices</button></div><div class="cards"><div class="card"><div class="label">Registered Devices</div><div class="value" id="totalDevices">0</div></div><div class="card"><div class="label">Online Devices</div><div class="value" id="onlineDevices">0</div></div><div class="card"><div class="label">Offline Devices</div><div class="value" id="offlineDevices">0</div></div><div class="card"><div class="label">Traffic Records</div><div class="value" id="totalTraffic">0</div></div></div><div class="grid"><div class="panel"><h3>Device Status</h3><table><thead><tr><th>Device</th><th>IP Address</th><th>Status</th></tr></thead><tbody id="dashDevices"></tbody></table></div><div class="panel"><h3>Recent Traffic</h3><table><thead><tr><th>Time</th><th>Device</th><th>Bytes In</th><th>Bytes Out</th></tr></thead><tbody id="dashTraffic"></tbody></table></div></div></section>
-<section id="devices" class="page hidden"><div class="page-title"><h1>Device Management</h1><button class="btn success" onclick="openDeviceModal()">+ Add Device</button></div><div class="notice">Manage registered network devices. Changes are saved to the shared Firestore database.</div><div class="panel"><table><thead><tr><th>Name</th><th>IP Address</th><th>Type</th><th>Status</th><th>Last Poll</th><th>Actions</th></tr></thead><tbody id="deviceTable"></tbody></table></div></section>
+<section id="devices" class="page hidden"><div class="page-title"><h1>Device Management</h1><button class="btn success" onclick="openDeviceModal()">+ Add Device</button></div><div class="notice">Manage registered network devices. Windows monitoring agents can automatically report the real local IP address.</div><div class="panel"><table><thead><tr><th>Name</th><th>IP Address</th><th>Type</th><th>Status</th><th>Last Poll</th><th>Actions</th></tr></thead><tbody id="deviceTable"></tbody></table></div></section>
 <section id="traffic" class="page hidden"><div class="page-title"><h1>Traffic Log</h1></div><div class="panel"><div class="toolbar"><input id="trafficSearch" placeholder="Search device/IP..." oninput="renderTraffic()"><select id="trafficStatus" onchange="renderTraffic()"><option value="">All Status</option><option>Normal</option><option>High Traffic</option></select></div><table><thead><tr><th>Timestamp</th><th>Device</th><th>IP</th><th>Bytes In</th><th>Bytes Out</th><th>Status</th></tr></thead><tbody id="trafficTable"></tbody></table></div></section>
 <section id="reports" class="page hidden"><div class="page-title"><h1>Reports</h1><button class="btn" onclick="window.print()">Print / Save PDF</button></div><div class="panel"><h3>Network Traffic Summary</h3><p>Generated: <span id="reportDate"></span></p><table><tr><th>Total Devices</th><td id="rDevices"></td></tr><tr><th>Online Devices</th><td id="rOnline"></td></tr><tr><th>Offline Devices</th><td id="rOffline"></td></tr><tr><th>Total Traffic Records</th><td id="rTraffic"></td></tr><tr><th>Total Bytes In</th><td id="rIn"></td></tr><tr><th>Total Bytes Out</th><td id="rOut"></td></tr></table><h3 style="margin-top:25px">Device Status Report</h3><table><thead><tr><th>Device</th><th>IP</th><th>Type</th><th>Status</th></tr></thead><tbody id="reportDevices"></tbody></table></div></section>
 </main></div></div>
-<div id="modal" class="modal hidden"><div class="modal-box"><h2 id="modalTitle">Add Device</h2><div class="field"><label>Device Name</label><input id="dName"></div><div class="field"><label>IP Address</label><input id="dIp"></div><div class="field"><label>Device Type</label><select id="dType"><option>Router</option><option>Switch</option><option>Server</option><option>Workstation</option><option>Access Point</option></select></div><div class="field"><label>Status</label><select id="dStatus"><option>Online</option><option>Offline</option></select></div><div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn success" onclick="saveDevice()">Save</button></div></div></div>
+<div id="modal" class="modal hidden"><div class="modal-box"><h2 id="modalTitle">Add Device</h2><div class="field"><label>Device Name</label><input id="dName"></div><div class="field"><label>IP Address <span style="font-weight:normal;color:#6b7280">(optional — agent can detect it)</span></label><input id="dIp" placeholder="Auto-detected by agent"></div><div class="field"><label>Device Type</label><select id="dType"><option>Router</option><option>Switch</option><option>Server</option><option>Workstation</option><option>Access Point</option></select></div><div class="field"><label>Status</label><select id="dStatus"><option>Online</option><option>Offline</option></select></div><div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn success" onclick="saveDevice()">Save</button></div></div></div>
 
 <!-- Firebase Web SDK: browser-friendly CDN version for GitHub Pages -->
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script>
-const firebaseConfig={
-  apiKey:"AIzaSyC-3agiTLhuaJZGg2mRBOGpNJLNJfqr6l0",
-  authDomain:"network-traffic-monitoring.firebaseapp.com",
-  projectId:"network-traffic-monitoring",
-  storageBucket:"network-traffic-monitoring.firebasestorage.app",
-  messagingSenderId:"89264516654",
-  appId:"1:89264516654:web:99343206b1a5e5d732f9bf"
-};
-firebase.initializeApp(firebaseConfig);
-const db=firebase.firestore();
-let data={devices:[],traffic:[]};
-let editId=null;
-let currentUser='Administrator';
-let unsubscribeDevices=null,unsubscribeTraffic=null;
+const API_BASE=window.NETWORK_MONITOR_API||"http://localhost:3000";
+let data={devices:[],traffic:[]},editId=null,currentUser="Administrator";
 
-function setConnection(ok,msg){const el=document.getElementById('connection');el.textContent=msg|| (ok?'Cloud database connected':'Database unavailable');el.className='connection '+(ok?'connected':'disconnected')}
-function safeDate(v){if(!v)return '—';if(v&&typeof v.toDate==='function')return v.toDate().toLocaleString();return new Date(v).toLocaleString()}
-function login(){
-  const u=document.getElementById('username').value.trim(),p=document.getElementById('password').value;
-  document.getElementById('loginError').textContent='';
-  db.collection('users').where('username','==',u).where('password','==',p).limit(1).get().then(snap=>{
-    if(snap.empty){document.getElementById('loginError').textContent='Invalid username or password.';return;}
-    const user=snap.docs[0].data(); currentUser=user.username||u; document.getElementById('loggedUser').textContent=currentUser;
-    document.getElementById('login').classList.add('hidden');document.getElementById('app').classList.remove('hidden');startRealtime();
-  }).catch(err=>{
-    console.error(err);document.getElementById('loginError').textContent='Could not connect to the database. Check your Firebase setup.';setConnection(false,'Database error');
-  });
-}
-function logout(){if(unsubscribeDevices)unsubscribeDevices();if(unsubscribeTraffic)unsubscribeTraffic();location.reload()}
-function startRealtime(){
-  setConnection(true,'Cloud database connected');
-  unsubscribeDevices=db.collection('devices').orderBy('name').onSnapshot(snap=>{data.devices=snap.docs.map(d=>({id:d.id,...d.data()}));renderAll()},err=>{console.error(err);setConnection(false,'Database read error')});
-  unsubscribeTraffic=db.collection('traffic_records').orderBy('time_polled','desc').limit(100).onSnapshot(snap=>{data.traffic=snap.docs.map(d=>({id:d.id,...d.data()}));renderAll()},err=>{console.error(err);setConnection(false,'Traffic read error')});
-}
-function showPage(id,btn){document.querySelectorAll('.page').forEach(x=>x.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));btn.classList.add('active');renderAll()}
-function renderAll(){
-  const on=data.devices.filter(d=>d.status==='Online').length;
-  document.getElementById('totalDevices').textContent=data.devices.length;
-  document.getElementById('onlineDevices').textContent=on;
-  document.getElementById('offlineDevices').textContent=data.devices.length-on;
-  document.getElementById('totalTraffic').textContent=data.traffic.length;
-  document.getElementById('dashDevices').innerHTML=data.devices.map(d=>`<tr><td>${esc(d.name)}</td><td>${esc(d.ip_address||d.ip||'')}</td><td><span class="status ${d.status==='Online'?'online':'offline'}">${esc(d.status||'Unknown')}</span></td></tr>`).join('')||'<tr><td colspan="3">No devices registered.</td></tr>';
-  document.getElementById('dashTraffic').innerHTML=data.traffic.slice(0,6).map(t=>`<tr><td>${safeDate(t.time_polled)}</td><td>${esc(t.device_name||findDeviceName(t.device_id))}</td><td>${fmt(t.bytes_in)}</td><td>${fmt(t.bytes_out)}</td></tr>`).join('')||'<tr><td colspan="4">No traffic records.</td></tr>';
-  renderDevices();renderTraffic();renderReport();
-}
-function findDeviceName(id){const d=data.devices.find(x=>x.id===id);return d?d.name:'Unknown device'}
-function renderDevices(){document.getElementById('deviceTable').innerHTML=data.devices.map(d=>`<tr><td>${esc(d.name)}</td><td>${esc(d.ip_address||d.ip||'')}</td><td>${esc(d.type||'')}</td><td><span class="status ${d.status==='Online'?'online':'offline'}">${esc(d.status||'Unknown')}</span></td><td>${safeDate(d.last_poll)}</td><td><button class="btn" onclick="editDevice('${d.id}')">Edit</button> <button class="btn danger" onclick="deleteDevice('${d.id}')">Delete</button></td></tr>`).join('')||'<tr><td colspan="6">No devices registered.</td></tr>'}
-function renderTraffic(){let q=(document.getElementById('trafficSearch')?.value||'').toLowerCase(),s=document.getElementById('trafficStatus')?.value||'';let rows=data.traffic.filter(t=>{const d=findDevice(t.device_id),name=t.device_name||(d?d.name:'');const ip=t.ip_address||(d?d.ip_address:'');return(!q||(name+' '+ip).toLowerCase().includes(q))&&(!s||t.status===s)});document.getElementById('trafficTable').innerHTML=rows.map(t=>{const d=findDevice(t.device_id);return `<tr><td>${safeDate(t.time_polled)}</td><td>${esc(t.device_name||(d?d.name:'Unknown'))}</td><td>${esc(t.ip_address||(d?d.ip_address||'':''))}</td><td>${fmt(t.bytes_in)}</td><td>${fmt(t.bytes_out)}</td><td><span class="status ${t.status==='Normal'?'online':'warning'}">${esc(t.status||'')}</span></td></tr>`}).join('')||'<tr><td colspan="6">No matching records.</td></tr>'}
+function setConnection(ok,msg){const e=document.getElementById("connection");e.textContent=msg||(ok?"Backend connected":"Backend unavailable");e.className="connection "+(ok?"connected":"disconnected")}
+function safeDate(v){if(!v)return"—";const d=v&&v._seconds?new Date(v._seconds*1000):new Date(v);return isNaN(d)?"—":d.toLocaleString()}
+async function api(path,opt={}){const r=await fetch(API_BASE+path,{headers:{"Content-Type":"application/json",...(opt.headers||{})},...opt});const b=await r.json().catch(()=>({}));if(!r.ok)throw Error(b.error||("Request failed "+r.status));return b}
+async function login(){const u=username.value.trim(),p=password.value;loginError.textContent="";try{const r=await api("/api/login",{method:"POST",body:JSON.stringify({username:u,password:p})});currentUser=r.user.username||u;loggedUser.textContent=currentUser;document.getElementById("login").classList.add("hidden");document.getElementById("app").classList.remove("hidden");await loadAll();setConnection(true,"Backend connected")}catch(e){loginError.textContent=e.message;setConnection(false,"Backend unavailable")}}
+function logout(){location.reload()}
+async function loadAll(){try{[data.devices,data.traffic]=await Promise.all([api("/api/devices"),api("/api/traffic")]);renderAll();setConnection(true,"Backend connected")}catch(e){setConnection(false,"Backend error");console.error(e)}}
+function showPage(id,btn){document.querySelectorAll(".page").forEach(x=>x.classList.add("hidden"));document.getElementById(id).classList.remove("hidden");document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));btn.classList.add("active");renderAll()}
+function online(d){return String(d.status).toLowerCase()==="online"}
 function findDevice(id){return data.devices.find(d=>d.id===id)}
-function renderReport(){let on=data.devices.filter(d=>d.status==='Online').length,totIn=data.traffic.reduce((a,t)=>a+Number(t.bytes_in||0),0),totOut=data.traffic.reduce((a,t)=>a+Number(t.bytes_out||0),0);document.getElementById('reportDate').textContent=new Date().toLocaleString();document.getElementById('rDevices').textContent=data.devices.length;document.getElementById('rOnline').textContent=on;document.getElementById('rOffline').textContent=data.devices.length-on;document.getElementById('rTraffic').textContent=data.traffic.length;document.getElementById('rIn').textContent=fmt(totIn)+' bytes';document.getElementById('rOut').textContent=fmt(totOut)+' bytes';document.getElementById('reportDevices').innerHTML=data.devices.map(d=>`<tr><td>${esc(d.name)}</td><td>${esc(d.ip_address||d.ip||'')}</td><td>${esc(d.type||'')}</td><td>${esc(d.status||'')}</td></tr>`).join('')}
-function openDeviceModal(){editId=null;document.getElementById('modalTitle').textContent='Add Device';document.getElementById('dName').value='';document.getElementById('dIp').value='';document.getElementById('dType').value='Router';document.getElementById('dStatus').value='Online';document.getElementById('modal').classList.remove('hidden')}
-function editDevice(id){let d=findDevice(id);if(!d)return;editId=id;document.getElementById('modalTitle').textContent='Edit Device';document.getElementById('dName').value=d.name||'';document.getElementById('dIp').value=d.ip_address||d.ip||'';document.getElementById('dType').value=d.type||'Router';document.getElementById('dStatus').value=d.status||'Online';document.getElementById('modal').classList.remove('hidden')}
-function closeModal(){document.getElementById('modal').classList.add('hidden')}
-function saveDevice(){
-  const name=document.getElementById('dName').value.trim(),ip=document.getElementById('dIp').value.trim(),type=document.getElementById('dType').value,status=document.getElementById('dStatus').value;
-  if(!name||!ip){alert('Please enter device name and IP address.');return}
-  const payload={name,ip_address:ip,type,status,last_poll:firebase.firestore.Timestamp.now()};
-  const promise=editId?db.collection('devices').doc(editId).update(payload):db.collection('devices').add(payload);
-  promise.then(()=>{closeModal();}).catch(err=>{console.error(err);alert('Could not save the device. Check Firestore rules and connection.')});
-}
-function deleteDevice(id){if(!confirm('Delete this device?'))return;db.collection('devices').doc(id).delete().then(()=>{data.traffic.filter(t=>t.device_id===id).forEach(t=>db.collection('traffic_records').doc(t.id).delete())}).catch(err=>{console.error(err);alert('Could not delete the device.')})}
-async function pollAll(){
-  if(!data.devices.length){alert('No devices to poll. Add a device first.');return}
-  try{
-    const batch=db.batch();
-    data.devices.forEach(d=>{const online=Math.random()>.22;batch.update(db.collection('devices').doc(d.id),{status:online?'Online':'Offline',last_poll:firebase.firestore.Timestamp.now()});if(online){const bin=Math.floor(20000+Math.random()*900000),bout=Math.floor(15000+Math.random()*700000);const ref=db.collection('traffic_records').doc();batch.set(ref,{device_id:d.id,device_name:d.name,ip_address:d.ip_address||d.ip||'',bytes_in:bin,bytes_out:bout,status:(bin+bout)>1200000?'High Traffic':'Normal',time_polled:firebase.firestore.Timestamp.now()})}});
-    await batch.commit();alert('Device polling completed. Shared traffic records were saved to Firestore.');
-  }catch(err){console.error(err);alert('Polling failed. Check Firestore rules and your internet connection.');}
-}
+function findDeviceName(id){const d=findDevice(id);return d?d.name:"Unknown device"}
+function renderAll(){const on=data.devices.filter(online).length;totalDevices.textContent=data.devices.length;onlineDevices.textContent=on;offlineDevices.textContent=data.devices.length-on;totalTraffic.textContent=data.traffic.length;dashDevices.innerHTML=data.devices.map(d=>`<tr><td>${esc(d.name)}</td><td>${esc(d.ip_address||"")}</td><td><span class="status ${online(d)?"online":"offline"}">${esc(d.status||"Unknown")}</span></td></tr>`).join("")||'<tr><td colspan="3">No devices registered.</td></tr>';dashTraffic.innerHTML=data.traffic.slice(0,6).map(t=>`<tr><td>${safeDate(t.time_polled)}</td><td>${esc(findDeviceName(t.device_id))}</td><td>${fmt(t.bytes_in)}</td><td>${fmt(t.bytes_out)}</td></tr>`).join("")||'<tr><td colspan="4">No traffic records.</td></tr>';renderDevices();renderTraffic();renderReport()}
+function renderDevices(){deviceTable.innerHTML=data.devices.map(d=>`<tr><td>${esc(d.name)}</td><td>${esc(d.ip_address||"")}</td><td>${esc(d.type||"")}</td><td><span class="status ${online(d)?"online":"offline"}">${esc(d.status||"Unknown")}</span></td><td>${safeDate(d.last_poll)}</td><td><button class="btn" onclick="editDevice('${d.id}')">Edit</button> <button class="btn danger" onclick="deleteDevice('${d.id}')">Delete</button></td></tr>`).join("")||'<tr><td colspan="6">No devices registered.</td></tr>'}
+function renderTraffic(){const q=(trafficSearch.value||"").toLowerCase(),s=trafficStatus.value||"";const rows=data.traffic.filter(t=>{const d=findDevice(t.device_id),x=(findDeviceName(t.device_id)+" "+(d?.ip_address||"")).toLowerCase();return(!q||x.includes(q))&&(!s||t.status===s)});trafficTable.innerHTML=rows.map(t=>{const d=findDevice(t.device_id);return`<tr><td>${safeDate(t.time_polled)}</td><td>${esc(findDeviceName(t.device_id))}</td><td>${esc(d?.ip_address||"")}</td><td>${fmt(t.bytes_in)}</td><td>${fmt(t.bytes_out)}</td><td><span class="status ${t.status==="Normal"?"online":"warning"}">${esc(t.status||"")}</span></td></tr>`}).join("")||'<tr><td colspan="6">No matching records.</td></tr>'}
+function renderReport(){const on=data.devices.filter(online).length,ti=data.traffic.reduce((a,t)=>a+Number(t.bytes_in||0),0),to=data.traffic.reduce((a,t)=>a+Number(t.bytes_out||0),0);reportDate.textContent=new Date().toLocaleString();rDevices.textContent=data.devices.length;rOnline.textContent=on;rOffline.textContent=data.devices.length-on;rTraffic.textContent=data.traffic.length;rIn.textContent=fmt(ti)+" bytes";rOut.textContent=fmt(to)+" bytes";reportDevices.innerHTML=data.devices.map(d=>`<tr><td>${esc(d.name)}</td><td>${esc(d.ip_address||"")}</td><td>${esc(d.type||"")}</td><td>${esc(d.status||"")}</td></tr>`).join("")}
+function openDeviceModal(){editId=null;modalTitle.textContent="Add Device";dName.value="";dIp.value="";dType.value="Workstation";dStatus.value="Offline";modal.classList.remove("hidden")}
+function editDevice(id){const d=findDevice(id);if(!d)return;editId=id;modalTitle.textContent="Edit Device";dName.value=d.name||"";dIp.value=d.ip_address||"";dType.value=d.type||"Workstation";dStatus.value=d.status||"Offline";modal.classList.remove("hidden")}
+function closeModal(){modal.classList.add("hidden")}
+async function saveDevice(){const name=dName.value.trim(),ip=dIp.value.trim(),type=dType.value,status=dStatus.value;if(!name)return alert("Please enter a device name.");try{if(editId)await api("/api/devices/"+editId,{method:"PUT",body:JSON.stringify({name,ip_address:ip,type,status})});else await api("/api/devices",{method:"POST",body:JSON.stringify({name,ip_address:ip||"",type})});closeModal();await loadAll()}catch(e){alert(e.message)}}
+async function deleteDevice(id){if(!confirm("Delete this device and its traffic records?"))return;try{await api("/api/devices/"+id,{method:"DELETE"});await loadAll()}catch(e){alert(e.message)}}
+async function pollAll(){alert("Real polling is now handled by monitoring agents. Use the Windows agent for computers; phone traffic requires router/gateway monitoring.");await loadAll()}
 function fmt(n){return Number(n||0).toLocaleString()}
-function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-document.addEventListener('DOMContentLoaded',()=>{document.getElementById('reportDate').textContent=new Date().toLocaleString()});
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+document.addEventListener("DOMContentLoaded",()=>{reportDate.textContent=new Date().toLocaleString();api("/api/health").then(()=>setConnection(true,"Backend connected")).catch(()=>setConnection(false,"Backend offline"))});
 </script>
 </body></html>
