@@ -22,7 +22,7 @@
 
 <!-- Firebase Web SDK: browser-friendly CDN version for GitHub Pages -->
 <script>
-const API_BASE=window.NETWORK_MONITOR_API||"http://localhost:3000";
+const API_BASE="https://kiambu-internet-solution.onrender.com";
 let data={devices:[],traffic:[]},editId=null,currentUser="Administrator";
 
 function setConnection(ok,msg){const e=document.getElementById("connection");e.textContent=msg||(ok?"Backend connected":"Backend unavailable");e.className="connection "+(ok?"connected":"disconnected")}
