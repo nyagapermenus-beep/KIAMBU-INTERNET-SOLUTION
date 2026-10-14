@@ -80,17 +80,6 @@ app.get("/api/traffic",async(req,res)=>{
   catch(e){res.status(500).json({error:e.message});}
 });
 
-app.post("/api/agent/register",key,async(req,res)=>{
-  try{
-    const {device_name,type="Windows Workstation"}=req.body||{};
-    if(!device_name)return res.status(400).json({error:"device_name is required"});
-    const existing=await db.collection("devices").where("name","==",device_name).limit(1).get();
-    if(!existing.empty)return res.json({ok:true,id:existing.docs[0].id,existing:true});
-    const ref=await db.collection("devices").add({name:device_name,ip_address:"",type,status:"Offline",last_poll:null});
-    res.json({ok:true,id:ref.id,existing:false});
-  }catch(e){res.status(500).json({error:e.message});}
-});
-
 app.post("/api/heartbeat",key,async(req,res)=>{
   try{
     const {device_id,ip_address,device_name}=req.body||{};
