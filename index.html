@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetPulse - Kiambu Internet Solutions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased">
+
+    <!-- LOGIN VIEW -->
+    <div id="loginSection" class="min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-md p-8 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl relative">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 rounded-2xl mb-4 text-2xl">
+                    <i class="fa-solid fa-network-wired"></i>
+                </div>
+                <h1 class="text-2xl font-bold tracking-tight">NetPulse</h1>
+                <p class="text-xs text-cyan-400 font-medium mt-1">Kiambu Internet Solutions &bull; Traffic Monitor</p>
+            </div>
+
+            <div id="loginError" class="hidden mb-4 p-3 bg-red-950/60 border border-red-900 rounded-xl text-red-400 text-xs text-center">
+                Invalid username or password.
+            </div>
+
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Username</label>
+                    <input type="text" id="username" required autocomplete="off" class="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-cyan-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Password</label>
+                    <input type="password" id="password" required autocomplete="off" class="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-cyan-500">
+                </div>
+                <button type="submit" class="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl text-xs transition shadow-lg shadow-cyan-500/20">
+                    Authenticate Portal
+                </button>
+            </form>
+            <div class="mt-6 pt-4 border-t border-slate-800 text-center text-[11px] text-slate-500">
+                Zetech University &bull; Permenus Nyaga (DSE-02-0224/2025)
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP VIEW (Hidden until login) -->
+    <div id="appSection" class="hidden min-h-screen flex flex-col md:flex-row">
+        <!-- Sidebar Navigation -->
+        <aside class="w-full md:w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between">
+            <div>
+                <div class="p-6 border-b border-slate-800 flex items-center space-x-3">
+                    <div class="w-9 h-9 bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 rounded-xl flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-network-wired"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-sm">NetPulse</h2>
+                        <span class="text-[10px] text-cyan-400 font-semibold uppercase">GitHub Deployment</span>
+                    </div>
+                </div>
+                <nav class="p-4 space-y-1">
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-cyan-500/10 text-cyan-400 text-xs font-semibold">
+                        <i class="fa-solid fa-chart-line w-4"></i><span>Dashboard (SO2)</span>
+                    </button>
+                    <button onclick="switchTab('devices')" id="nav-devices" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 text-xs font-semibold">
+                        <i class="fa-solid fa-server w-4"></i><span>Device Management (SO1)</span>
+                    </button>
+                    <button onclick="switchTab('reports')" id="nav-reports" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 text-xs font-semibold">
+                        <i class="fa-solid fa-file-lines w-4"></i><span>Traffic Reports (SO3)</span>
+                    </button>
+                </nav>
+            </div>
+            <div class="p-4 border-t border-slate-800">
+                <button onclick="handleLogout()" class="w-full flex items-center justify-center space-x-2 py-2 px-4 bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl text-xs font-semibold hover:bg-red-500/20">
+                    <i class="fa-solid fa-right-from-bracket"></i><span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col">
+            <header class="h-16 bg-slate-900/50 border-b border-slate-800 px-6 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-300">Kiambu Internet Solutions &bull; Live Network Monitor</span>
+                <span class="text-xs text-slate-400">Authenticated Session</span>
+            </header>
+
+            <div class="p-6 space-y-6 flex-1 overflow-y-auto">
+                <!-- TAB 1: DASHBOARD -->
+                <div id="tab-dashboard" class="space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+                            <span class="text-xs uppercase text-slate-400 font-semibold">Bandwidth Throughput</span>
+                            <div class="text-2xl font-bold mt-1 text-cyan-400">84.5 Mbps</div>
+                        </div>
+                        <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+                            <span class="text-xs uppercase text-slate-400 font-semibold">Active Devices</span>
+                            <div id="activeDevicesCount" class="text-2xl font-bold mt-1 text-emerald-400">0 Online</div>
+                        </div>
+                        <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+                            <span class="text-xs uppercase text-slate-400 font-semibold">Downtime Alerts</span>
+                            <div class="text-2xl font-bold mt-1 text-emerald-400">0 Active</div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
+                        <h3 class="font-bold text-xs uppercase text-slate-300 mb-4">Real-Time Traffic Trends</h3>
+                        <div class="h-64"><canvas id="trafficChart"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: DEVICE MANAGEMENT (SO1 - CRUD) -->
+                <div id="tab-devices" class="hidden space-y-6">
+                    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
+                        <h3 class="font-bold text-sm mb-4">Add New Device (Insert)</h3>
+                        <form onsubmit="addDevice(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <input type="text" id="deviceName" placeholder="Device Name (e.g. Core Switch)" required class="px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100">
+                            <input type="text" id="deviceIP" placeholder="IP Address (192.168.10.x)" required class="px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100">
+                            <button type="submit" class="py-2 bg-cyan-500 text-slate-950 font-bold rounded-xl text-xs">Save to Database</button>
+                        </form>
+                    </div>
+
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+                        <div class="p-4 border-b border-slate-800 font-bold text-xs uppercase text-slate-400">Registered Database Devices</div>
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-950 text-slate-400 uppercase">
+                                <tr><th class="p-3">Name</th><th class="p-3">IP</th><th class="p-3">Status</th><th class="p-3">Action</th></tr>
+                            </thead>
+                            <tbody id="deviceTableBody" class="divide-y divide-slate-800"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB 3: REPORTS (SO3 - Search & Export) -->
+                <div id="tab-reports" class="hidden space-y-6">
+                    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
+                        <h3 class="font-bold text-sm">Search Traffic History (Query)</h3>
+                        <div class="flex space-x-3">
+                            <input type="text" id="searchInput" onkeyup="filterReports()" placeholder="Search by Device Name or IP..." class="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100">
+                            <button onclick="exportCSV()" class="px-4 py-2 bg-cyan-500 text-slate-950 font-bold rounded-xl text-xs flex items-center space-x-2">
+                                <i class="fa-solid fa-download"></i><span>Export CSV</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-950 text-slate-400 uppercase">
+                                <tr><th class="p-3">Timestamp</th><th class="p-3">Device</th><th class="p-3">IP</th><th class="p-3">Bandwidth</th></tr>
+                            </thead>
+                            <tbody id="reportsTableBody" class="divide-y divide-slate-800"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let devices = JSON.parse(localStorage.getItem('np_devices')) || [
+            { id: 1, name: 'Kiambu Main Core Router', ip: '192.168.10.1', status: 'Active' },
+            { id: 2, name: 'Distribution Switch A', ip: '192.168.10.2', status: 'Active' },
+            { id: 3, name: 'Billing Gateway Server', ip: '192.168.10.5', status: 'Active' }
+        ];
+
+        let logs = [
+            { time: '2026-11-01 11:45', name: 'Kiambu Main Core Router', ip: '192.168.10.1', bw: '42.1 Mbps' },
+            { time: '2026-11-01 11:40', name: 'Distribution Switch A', ip: '192.168.10.2', bw: '24.5 Mbps' },
+            { time: '2026-11-01 11:35', name: 'Billing Gateway Server', ip: '192.168.10.5', bw: '17.9 Mbps' }
+        ];
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('username').value.trim();
+            const p = document.getElementById('password').value.trim();
+            if(u === 'matrix' && p === 'zetech@123') {
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('appSection').classList.remove('hidden');
+                renderDevices();
+                renderReports(logs);
+                initChart();
+            } else {
+                document.getElementById('loginError').classList.remove('hidden');
+            }
+        }
+
+        function handleLogout() {
+            document.getElementById('appSection').classList.add('hidden');
+            document.getElementById('loginSection').classList.remove('hidden');
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        function switchTab(tab) {
+            ['dashboard', 'devices', 'reports'].forEach(t => {
+                document.getElementById('tab-' + t).classList.add('hidden');
+                document.getElementById('nav-' + t).className = "w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 text-xs font-semibold";
+            });
+            document.getElementById('tab-' + tab).classList.remove('hidden');
+            document.getElementById('nav-' + tab).className = "w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-cyan-500/10 text-cyan-400 text-xs font-semibold";
+        }
+
+        function renderDevices() {
+            localStorage.setItem('np_devices', JSON.stringify(devices));
+            document.getElementById('activeDevicesCount').innerText = devices.length + ' Online';
+            const tbody = document.getElementById('deviceTableBody');
+            tbody.innerHTML = devices.map(d => `
+                <tr>
+                    <td class="p-3 font-semibold text-slate-100">${d.name}</td>
+                    <td class="p-3 font-mono text-slate-400">${d.ip}</td>
+                    <td class="p-3 text-emerald-400 font-semibold">${d.status}</td>
+                    <td class="p-3"><button onclick="deleteDevice(${d.id})" class="text-red-400 hover:underline">Delete</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function addDevice(e) {
+            e.preventDefault();
+            const name = document.getElementById('deviceName').value;
+            const ip = document.getElementById('deviceIP').value;
+            devices.push({ id: Date.now(), name, ip, status: 'Active' });
+            document.getElementById('deviceName').value = '';
+            document.getElementById('deviceIP').value = '';
+            renderDevices();
+        }
+
+        function deleteDevice(id) {
+            devices = devices.filter(d => d.id !== id);
+            renderDevices();
+        }
+
+        function renderReports(data) {
+            document.getElementById('reportsTableBody').innerHTML = data.map(l => `
+                <tr>
+                    <td class="p-3 font-mono text-slate-400">${l.time}</td>
+                    <td class="p-3 font-semibold text-slate-100">${l.name}</td>
+                    <td class="p-3 font-mono text-slate-400">${l.ip}</td>
+                    <td class="p-3 text-cyan-400">${l.bw}</td>
+                </tr>
+            `).join('');
+        }
+
+        function filterReports() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = logs.filter(l => l.name.toLowerCase().includes(q) || l.ip.includes(q));
+            renderReports(filtered);
+        }
+
+        function exportCSV() {
+            let csv = "Timestamp,Device Name,IP Address,Bandwidth\n" + logs.map(l => `${l.time},${l.name},${l.ip},${l.bw}`).join("\n");
+            let blob = new Blob([csv], { type: 'text/csv' });
+            let link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'NetPulse_Report.csv';
+            link.click();
+        }
+
+        let chartInitialized = false;
+        function initChart() {
+            if(chartInitialized) return;
+            const ctx = document.getElementById('trafficChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['10:00', '10:10', '10:20', '10:30', '10:40', '10:50'],
+                    datasets: [{ label: 'Bandwidth (Mbps)', data: [35, 52, 48, 65, 72, 84.5], borderColor: '#06b6d4', backgroundColor: 'rgba(6, 182, 212, 0.1)', fill: true, tension: 0.4 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+            chartInitialized = true;
+        }
+    </script>
+</body>
+</html>
