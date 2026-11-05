@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NetPulse - Kiambu Internet Solutions</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://tailwindcss.com"></script>
+    <script src="https://jsdelivr.net"></script>
+    <link rel="stylesheet" href="https://cloudflare.com">
     <!-- Import the free Supabase client library -->
     <script src="https://jsdelivr.net"></script>
 </head>
@@ -28,7 +28,7 @@
             </div>
 
             <!-- Secure Google Sign-In button interaction replaces the old input fields -->
-            <button id="googleLoginBtn" class="w-full py-3 bg-white hover:bg-slate-100 text-slate-900 font-bold rounded-xl text-xs transition shadow-lg flex items-center justify-center space-x-2 border border-slate-200">
+            <button id="google-login-btn" class="w-full py-3 bg-white hover:bg-slate-100 text-slate-900 font-bold rounded-xl text-xs transition shadow-lg flex items-center justify-center space-x-2 border border-slate-200">
                 <i class="fa-brands fa-google text-base text-red-500"></i>
                 <span>Sign in with Google Account</span>
             </button>
@@ -60,9 +60,6 @@
                     <button onclick="switchTab('devices')" id="nav-devices" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 text-xs font-semibold">
                         <i class="fa-solid fa-server w-4"></i><span>Device Management (SO1)</span>
                     </button>
-                    <button onclick="switchTab('reports')" id="nav-reports" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 text-xs font-semibold">
-                        <i class="fa-solid fa-file-lines w-4"></i><span>Traffic Reports (SO3)</span>
-                    </button>
                 </nav>
             </div>
             <div class="p-4 border-t border-slate-800">
@@ -89,7 +86,7 @@
                         </div>
                         <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
                             <span class="text-xs uppercase text-slate-400 font-semibold">Active Devices</span>
-                            <div id="activeDevicesCount" class="text-2xl font-bold mt-1 text-emerald-400">0 Online</div>
+                            <div id="activeDevicesCount" class="text-2xl font-bold mt-1 text-emerald-400">3 Online</div>
                         </div>
                         <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
                             <span class="text-xs uppercase text-slate-400 font-semibold">Downtime Alerts</span>
@@ -119,12 +116,10 @@
 
     <!-- APPLICATION SCRIPTS & CORE AUTH LOGIC -->
     <script>
-        // 1. Paste your exact Supabase Credentials here!
         const SUPABASE_URL = "https://supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_vkyC-YI4SmysOfEe0SAS9w_4faEfwoy";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-                // This targets your exact button element from your template structure
         const loginButton = document.getElementById('google-login-btn');
 
         if (loginButton) {
@@ -141,36 +136,40 @@
             });
         }
 
-
-        // Trigger Google OAuth Login when clicking the button
-        googleLoginBtn.addEventListener('click', async () => {
-            loginError.classList.add('hidden');
-            const { data, error } = await _supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    redirectTo: 'https://duckdns.org'
-                }
-            });
-            if (error) {
-                console.error("Authentication Error:", error.message);
-                loginError.classList.remove('hidden');
-            }
-        });
-
-        // Watch user authentication state continuously
         _supabase.auth.onAuthStateChange((event, session) => {
             if (session && session.user) {
-                // User logged in successfully -> Show App View, hide login form
-                loginSection.classList.add('hidden');
-                appSection.classList.remove('hidden');
-                userGreeting.innerText = `Active User: ${session.user.email}`;
-                initChart(); // Renders your graphics engine initialization
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('appSection').classList.remove('hidden');
+                document.getElementById('userGreeting').innerText = `Active User: ${session.user.email}`;
+                initChart();
             } else {
-                // No session active -> Redirect directly to sign-in wall
-                loginSection.classList.remove('hidden');
-                appSection.classList.add('hidden');
+                document.getElementById('loginSection').classList.remove('hidden');
+                document.getElementById('appSection').classList.add('hidden');
             }
         });
 
-        // Terminate security session
         async function handleLogout() {
+            await _supabase.auth.signOut();
+        }
+
+        function switchTab(tabId) {
+            document.getElementById('tab-dashboard').classList.add('hidden');
+            document.getElementById('tab-devices').classList.add('hidden');
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+        }
+
+        function addDevice(e) {
+            e.preventDefault();
+            alert("Device registered successfully!");
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('trafficChart');
+            if (ctx && !window.myTrafficChart) {
+                window.myTrafficChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+                        datasets: [{
+                            label: 'Throughput (Mbps)',
+                            data: [30, 15, 75, 84.5, 60, 45],
