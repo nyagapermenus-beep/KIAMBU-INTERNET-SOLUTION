@@ -124,12 +124,23 @@
         const SUPABASE_ANON_KEY = "sb_publishable_vkyC-YI4SmysOfEe0SAS9w_4faEfwoy";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // UI DOM Elements
-        const loginSection = document.getElementById('loginSection');
-        const appSection = document.getElementById('appSection');
-        const loginError = document.getElementById('loginError');
-        const googleLoginBtn = document.getElementById('googleLoginBtn');
-        const userGreeting = document.getElementById('userGreeting');
+                // This targets your exact button element from your template structure
+        const loginButton = document.getElementById('google-login-btn');
+
+        if (loginButton) {
+            loginButton.addEventListener('click', async () => {
+                const { data, error } = await _supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: 'https://duckdns.org'
+                    }
+                });
+                if (error) {
+                    console.error("Auth Exception:", error.message);
+                }
+            });
+        }
+
 
         // Trigger Google OAuth Login when clicking the button
         googleLoginBtn.addEventListener('click', async () => {
