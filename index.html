@@ -4,29 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NetPulse - Kiambu Internet Solutions</title>
-    <!-- Core layout stylesheet failsafe backup styles -->
+    <!-- Complete raw framework stylesheet to bypass all external CDN blocking -->
     <style>
-        body { background-color: #020617; color: #f8fafc; font-family: sans-serif; min-height: 100vh; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .card { background-color: #0f172a; border: 1px solid #1e293b; padding: 2rem; border-radius: 1rem; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
-        .logo-box { width: 4rem; height: 4rem; background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.2); color: #22d3ee; border-radius: 1rem; margin-bottom: 1rem; display: inline-flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; }
-        h1 { font-size: 1.5rem; font-weight: bold; margin: 0; }
-        p { font-size: 0.75rem; color: #22d3ee; margin: 0.25rem 0 1.5rem 0; }
-        .btn { width: 100%; padding: 0.75rem; background: #ffffff; color: #0f172a; font-weight: bold; border-radius: 0.75rem; border: 1px solid #e2e8f0; cursor: pointer; font-size: 0.75rem; transition: background 0.2s; }
-        .btn:hover { background: #f1f5f9; }
+        * { box-sizing: border-box; }
+        body { background-color: #020617; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; min-height: 100vh; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow-x: hidden; }
+        .card { background-color: #0f172a; border: 1px solid #1e293b; padding: 2.5rem 2rem; border-radius: 1rem; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+        .logo-box { width: 4rem; height: 4rem; background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.2); color: #22d3ee; border-radius: 1rem; margin: 0 auto 1.5rem auto; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; }
+        h1 { font-size: 1.75rem; font-weight: bold; margin: 0; tracking: -0.025em; }
+        p { font-size: 0.85rem; color: #94a3b8; margin: 0.5rem 0 2rem 0; }
+        .btn { width: 100%; padding: 0.85rem; background: #ffffff; color: #0f172a; font-weight: bold; border-radius: 0.75rem; border: 1px solid #e2e8f0; cursor: pointer; font-size: 0.85rem; transition: background 0.2s, transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+        .btn:hover { background: #f1f5f9; transform: translateY(-1px); }
+        .btn:active { transform: translateY(0); }
         .hidden { display: none !important; }
-        .app-container { display: flex; width: 100vw; min-height: 100vh; flex-direction: row; background: #020617; }
+        
+        /* Main Dashboard Core Layout */
+        .app-container { display: flex; width: 100vw; min-height: 100vh; flex-direction: row; background: #020617; position: absolute; top: 0; left: 0; }
         aside { width: 16rem; background: #0f172a; border-right: 1px solid #1e293b; padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between; }
-        main { flex: 1; display: flex; flex-direction: column; }
-        header { padding: 1rem 1.5rem; background: rgba(15,23,42,0.5); border-bottom: 1px solid #1e293b; display: flex; justify-content: space-between; font-size: 0.75rem; }
-        .content-box { padding: 1.5rem; gap: 1.5rem; display: flex; flex-direction: column; }
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
-        .stat-card { background: #0f172a; border: 1px solid #1e293b; padding: 1.25rem; border-radius: 1rem; }
-        .stat-val { font-size: 1.5rem; font-weight: bold; margin-top: 0.25rem; }
-        .nav-btn { width: 100%; text-align: left; padding: 0.75rem 1rem; background: transparent; color: #94a3b8; border: none; border-radius: 0.75rem; cursor: pointer; font-size: 0.75rem; font-weight: 600; margin-bottom: 0.25rem; }
-        .nav-btn.active { background: rgba(6,182,212,0.1); color: #22d3ee; }
-        .logout-btn { width: 100%; padding: 0.5rem; background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.2); border-radius: 0.75rem; cursor: pointer; font-size: 0.75rem; }
+        main { flex: 1; display: flex; flex-direction: column; background: #020617; }
+        header { padding: 1.25rem 2rem; background: rgba(15,23,42,0.6); border-bottom: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
+        .content-box { padding: 2rem; gap: 2rem; display: flex; flex-direction: column; width: 100%; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        .stat-card { background: #0f172a; border: 1px solid #1e293b; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .stat-label { font-size: 0.75rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+        .stat-val { font-size: 1.85rem; font-weight: 800; margin-top: 0.5rem; }
+        .nav-btn { width: 100%; text-align: left; padding: 0.85rem 1rem; background: transparent; color: #94a3b8; border: none; border-radius: 0.75rem; cursor: pointer; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; transition: all 0.2s; }
+        .nav-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
+        .nav-btn.active { background: rgba(6,182,212,0.1); color: #22d3ee; border: 1px solid rgba(6,182,212,0.15); }
+        .logout-btn { width: 100%; padding: 0.75rem; background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.2); border-radius: 0.75rem; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: background 0.2s; }
+        .logout-btn:hover { background: rgba(239,68,68,0.2); }
+        
+        /* Form Styling */
+        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .form-grid { display: grid; grid-template-columns: 2fr 2fr 1fr; gap: 1rem; align-items: flex-end; }
+        .input-field { padding: 0.75rem 1rem; background: #020617; border: 1px solid #1e293b; color: #fff; border-radius: 0.75rem; font-size: 0.85rem; width: 100%; transition: border-color 0.2s; }
+        .input-field:focus { outline: none; border-color: #22d3ee; }
+        .submit-btn { padding: 0.75rem 1.5rem; background: #22d3ee; color: #0f172a; font-weight: bold; border: none; border-radius: 0.75rem; cursor: pointer; font-size: 0.85rem; transition: background 0.2s; height: 100%; }
+        .submit-btn:hover { background: #67e8f9; }
     </style>
-    <script src="https://tailwindcss.com"></script>
     <script src="https://jsdelivr.net"></script>
     <script src="https://jsdelivr.net"></script>
 </head>
@@ -35,12 +49,15 @@
     <!-- LOGIN VIEW -->
     <div id="loginSection" class="w-full min-h-screen flex items-center justify-center p-4">
         <div class="card">
-            <div class="logo-box">NP</div>
+            <div class="logo-box">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v1M18 8h4v4h-4zM6 12h6M10 9l3 3-3 3"/></svg>
+            </div>
             <h1>NetPulse</h1>
             <p>Kiambu Internet Solutions &bull; Traffic Monitor</p>
 
             <button id="google-login-btn" class="btn">
-                Sign in with Google Account
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.18 1-.78 1.85-1.63 2.42v2.77h2.64c1.63-1.5 2.63-3.71 2.63-7.2z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-2.64-2.77c-.74.5-1.69.8-2.64.8-2.84 0-5.24-1.92-6.1-4.51H1.1v2.84C2.92 20.29 7.17 23 12 23z" fill="#34A853"/><path d="M5.9 13.86c-.22-.66-.35-1.37-.35-2.1s.13-1.44.35-2.1V6.82H1.1C.4 8.26 0 9.89 0 11.6s.4 3.34 1.1 4.78l4.8-3.52z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.17 1 2.92 3.71 1.1 6.82l4.8 3.52c.86-2.59 3.26-4.51 6.1-4.51z" fill="#EA4335"/></svg>
+                <span>Sign in with Google Account</span>
             </button>
         </div>
     </div>
@@ -50,49 +67,55 @@
         <div class="app-container">
             <aside>
                 <div>
-                    <h2 style="font-size: 1.25rem; margin: 0 0 1.5rem 0; color: #22d3ee;">NetPulse</h2>
+                    <h2 style="font-size: 1.35rem; font-weight: 800; margin: 0 0 2rem 0; color: #22d3ee; tracking: -0.025em;">NetPulse</h2>
                     <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn active">Dashboard</button>
                     <button onclick="switchTab('devices')" id="nav-devices" class="nav-btn">Device Management</button>
                 </div>
                 <div>
-                    <button onclick="handleLogout()" class="logout-btn">Logout</button>
+                    <button onclick="handleLogout()" class="logout-btn">Logout Portal</button>
                 </div>
             </aside>
 
             <main>
                 <header>
-                    <span style="font-weight: bold; color: #cbd5e1;">Kiambu Internet Solutions &bull; Live Monitor</span>
-                    <span id="userGreeting" style="color: #64748b;">Session Status</span>
+                    <span style="font-weight: bold; color: #cbd5e1; font-size: 0.85rem;">Kiambu Internet Solutions &bull; Live Monitor</span>
+                    <span id="userGreeting" style="color: #38bdf8; font-weight: 600;">Session Status</span>
                 </header>
 
                 <div class="content-box">
                     <div id="tab-dashboard">
                         <div class="grid-3">
                             <div class="stat-card">
-                                <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 600;">Bandwidth Throughput</div>
+                                <div class="stat-label">Bandwidth Throughput</div>
                                 <div class="stat-val" style="color: #22d3ee;">84.5 Mbps</div>
                             </div>
                             <div class="stat-card">
-                                <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 600;">Active Devices</div>
+                                <div class="stat-label">Active Devices</div>
                                 <div class="stat-val" style="color: #34d399;">3 Online</div>
                             </div>
                             <div class="stat-card">
-                                <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 600;">Downtime Alerts</div>
+                                <div class="stat-label">Downtime Alerts</div>
                                 <div class="stat-val" style="color: #f87171;">0 Active</div>
                             </div>
                         </div>
-                        <div class="stat-card" style="margin-top: 1.5rem; height: 300px; position: relative;">
+                        <div class="stat-card" style="margin-top: 1.75rem; height: 350px; position: relative;">
                             <canvas id="trafficChart"></canvas>
                         </div>
                     </div>
 
                     <div id="tab-devices" class="hidden">
                         <div class="stat-card">
-                            <h3 style="margin: 0 0 1rem 0; font-size: 0.875rem;">Add New Device</h3>
-                            <form onsubmit="addDevice(event)" style="display: flex; gap: 1rem;">
-                                <input type="text" id="deviceName" placeholder="Device Name" required style="padding: 0.5rem; background: #020617; border: 1px solid #1e293b; color: #fff; border-radius: 0.5rem; flex: 1;">
-                                <input type="text" id="deviceIP" placeholder="IP Address" required style="padding: 0.5rem; background: #020617; border: 1px solid #1e293b; color: #fff; border-radius: 0.5rem; flex: 1;">
-                                <button type="submit" style="padding: 0.5rem 1rem; background: #22d3ee; color: #0f172a; font-weight: bold; border: none; border-radius: 0.5rem; cursor: pointer;">Save</button>
+                            <h3 style="margin: 0 0 1.25rem 0; font-size: 1rem; font-weight: bold; color: #e2e8f0;">Add New Hardware Node</h3>
+                            <form onsubmit="addDevice(event)" class="form-grid">
+                                <div class="form-group">
+                                    <label style="font-size: 0.7rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Device Name</label>
+                                    <input type="text" id="deviceName" placeholder="e.g. Core Switch" fraternal required class="input-field">
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-size: 0.7rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">IP Address</label>
+                                    <input type="text" id="deviceIP" placeholder="e.g. 192.168.10.1" required class="input-field">
+                                </div>
+                                <button type="submit" class="submit-btn">Save to DB</button>
                             </form>
                         </div>
                     </div>
@@ -101,12 +124,18 @@
         </div>
     </div>
 
-    <!-- APPLICATION SCRIPTS & CORE AUTH LOGIC -->
+        <!-- APPLICATION SCRIPTS & CORE AUTH LOGIC -->
     <script>
-        const SUPABASE_URL = "https://supabase.co";
+              const SUPABASE_URL = "https://supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_vkyC-YI4SmysOfEe0SAS9w_4faEfwoy";
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: {
+                persistSession: true,
+                autoRefreshToken: true
+            }
+        });
 
+        // ======= PASTE THE CODE STRIP RIGHT HERE =======
         const loginButton = document.getElementById('google-login-btn');
 
         if (loginButton) {
@@ -119,54 +148,6 @@
                 });
             });
         }
+        // ===============================================
 
-        _supabase.auth.onAuthStateChange((event, session) => {
-            if (session && session.user) {
-                document.body.style.justifyContent = "flex-start";
-                document.body.style.alignItems = "stretch";
-                document.getElementById('loginSection').classList.add('hidden');
-                document.getElementById('appSection').classList.remove('hidden');
-                document.getElementById('userGreeting').innerText = `User: ${session.user.email}`;
-                initChart();
-            } else {
-                document.body.style.justifyContent = "center";
-                document.body.style.alignItems = "center";
-                document.getElementById('loginSection').classList.remove('hidden');
-                document.getElementById('appSection').classList.add('hidden');
-            }
-        });
 
-        async function handleLogout() {
-            await _supabase.auth.signOut();
-        }
-
-        function switchTab(tabId) {
-            document.getElementById('tab-dashboard').classList.add('hidden');
-            document.getElementById('tab-devices').classList.add('hidden');
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            document.getElementById('nav-dashboard').classList.remove('active');
-            document.getElementById('nav-devices').classList.remove('active');
-            document.getElementById(`nav-${tabId}`).幕.add('active');
-        }
-
-        function addDevice(e) {
-            e.preventDefault();
-            alert("Device registered successfully!");
-        }
-
-        function initChart() {
-            const ctx = document.getElementById('trafficChart');
-            if (ctx && !window.myTrafficChart) {
-                window.myTrafficChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
-                        datasets: [{
-                            label: 'Throughput (Mbps)',
-                            data: [30, 15, 75, 84.5, 60, 45],
-                            borderColor: '#22d3ee',
-                            backgroundColor: 'rgba(34,211,238,0.1)',
-                            fill: true,
-                            tension: 0.4
-                        }]
-                    },
