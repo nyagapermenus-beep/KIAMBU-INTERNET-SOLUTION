@@ -41,8 +41,7 @@
         .submit-btn { padding: 0.75rem 1.5rem; background: #22d3ee; color: #0f172a; font-weight: bold; border: none; border-radius: 0.75rem; cursor: pointer; font-size: 0.85rem; transition: background 0.2s; height: 100%; }
         .submit-btn:hover { background: #67e8f9; }
     </style>
-    <script src="https://jsdelivr.net"></script>
-    <script src="https://jsdelivr.net"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -124,30 +123,154 @@
         </div>
     </div>
 
-        <!-- APPLICATION SCRIPTS & CORE AUTH LOGIC -->
-    <script>
-              const SUPABASE_URL = "https://supabase.co";
-        const SUPABASE_ANON_KEY = "sb_publishable_vkyC-YI4SmysOfEe0SAS9w_4faEfwoy";
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+
+<!-- NETPULSE AUTHENTICATION -->
+<script>
+    // Supabase project configuration
+    const SUPABASE_URL =
+        "https://vmldybuwjubqhdwvwekf.supabase.co";
+
+    // Keep your existing publishable key from your original file
+    const SUPABASE_ANON_KEY =
+        "sb_publishable_vkyC-YI4SmysOfEe0SAS9w_4faEfwoy";
+
+    // Initialize Supabase
+    const _supabase = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY,
+        {
             auth: {
                 persistSession: true,
-                autoRefreshToken: true
+                autoRefreshToken: true,
+                detectSessionInUrl: true
             }
-        });
+        }
+    );
 
-        // ======= PASTE THE CODE STRIP RIGHT HERE =======
-        const loginButton = document.getElementById('google-login-btn');
+    // Login button
+    const loginButton =
+        document.getElementById("google-login-btn");
 
-        if (loginButton) {
-            loginButton.addEventListener('click', async () => {
+    // Display login or dashboard
+    function updateLoginView(session) {
+        const loginSection =
+            document.getElementById("loginSection");
+
+        const appSection =
+            document.getElementById("appSection");
+
+        if (session) {
+            loginSection.classList.add("hidden");
+            appSection.classList.remove("hidden");
+
+            document.getElementById("userGreeting").textContent =
+                session.user.email || "Authenticated User";
+
+        } else {
+            loginSection.classList.remove("hidden");
+            appSection.classList.add("hidden");
+        }
+    }
+
+    // Google authentication
+    loginButton.addEventListener("click", async function () {
+
+        loginButton.disabled = true;
+
+        loginButton.querySelector("span").textContent =
+            "Connecting to Google...";
+
+        try {
+            const { error } =
                 await _supabase.auth.signInWithOAuth({
-                    provider: 'google',
+                    provider: "google",
                     options: {
-                        redirectTo: window.location.origin
+                        redirectTo:
+                            "https://netpulseproject.duckdns.org/"
                     }
                 });
-            });
+
+            if (error) {
+                throw error;
+            }
+
+        } catch (error) {
+
+            console.error("Google Authentication Error:", error);
+
+            alert("Google sign-in failed: " + error.message);
+
+            loginButton.disabled = false;
+
+            loginButton.querySelector("span").textContent =
+                "Sign in with Google Account";
         }
-        // ===============================================
+    });
 
+    // Restore an existing login session
+    async function checkSession() {
 
+        const { data, error } =
+            await _supabase.auth.getSession();
+
+        if (error) {
+            console.error("Session error:", error.message);
+            updateLoginView(null);
+            return;
+        }
+
+        updateLoginView(data.session);
+    }
+
+    // Monitor login and logout events
+    _supabase.auth.onAuthStateChange(
+        (event, session) => {
+            updateLoginView(session);
+        }
+    );
+
+    // Logout function
+    async function handleLogout() {
+
+        const { error } = await _supabase.auth.signOut();
+
+        if (error) {
+            alert("Logout failed: " + error.message);
+            return;
+        }
+
+        updateLoginView(null);
+    }
+
+    // Dashboard navigation
+    function switchTab(tab) {
+
+        document.querySelectorAll('[id^="tab-"]').forEach(
+            section => section.classList.add("hidden")
+        );
+
+        const selectedTab =
+            document.getElementById("tab-" + tab);
+
+        if (selectedTab) {
+            selectedTab.classList.remove("hidden");
+        }
+
+        document.querySelectorAll(".nav-btn").forEach(
+            button => button.classList.remove("active")
+        );
+
+        const selectedButton =
+            document.getElementById("nav-" + tab);
+
+        if (selectedButton) {
+            selectedButton.classList.add("active");
+        }
+    }
+
+    // Initialize application
+    checkSession();
+
+</script>
+</body>
+</html>
