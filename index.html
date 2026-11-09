@@ -71,8 +71,7 @@
     </div>
 
     <script>
-        // PASTE YOUR REAL GOOGLE CLIENT ID BELOW
-        const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_://googleusercontent.com";
+        const GOOGLE_CLIENT_ID = "284696192427-13r9t03pub6ggllt3r2moet4ce7ra0m8.apps.googleusercontent.com";
 
         // Animated Background
         const canvas = document.getElementById('network-canvas');
@@ -141,7 +140,7 @@
         function handleGoogleCredentialResponse(response) {
             try {
                 const parts = response.credential.split('.');
-                const base64 = parts.replace(/-/g, '+').replace(/_/g, '/');
+                const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
                 const payload = JSON.parse(decodeURIComponent(atob(base64).split('').map(c =>
                     '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
                 ).join('')));
@@ -151,7 +150,7 @@
 
                 if (!existing) {
                     existing = {
-                        username: payload.name || payload.email.split('@'),
+                        username: payload.name || payload.email.split('@')[0],
                         email: payload.email,
                         password: null,
                         role: 'Technician',
