@@ -6,103 +6,24 @@
     <title>Login | Kiambu Internet Solutions - Network Monitor</title>
     <script src="https://google.com" async defer></script>
     <style>
-        :root {
-            --navy: #1b365d;
-            --navy-dark: #0f213c;
-            --cyan: #00d2ff;
-            --danger: #d93025;
-            --success: #188038;
-        }
+        :root { --navy: #1b365d; --navy-dark: #0f213c; --cyan: #00d2ff; --danger: #d93025; --success: #188038; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body.login-body {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--navy-dark);
-            overflow: hidden;
-            position: relative;
-        }
-        .bg-video, #network-canvas {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            object-fit: cover;
-            z-index: 0;
-        }
-        .video-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(11, 25, 48, 0.72);
-            z-index: 1;
-        }
-        .login-card {
-            position: relative;
-            z-index: 2;
-            width: 92%;
-            max-width: 440px;
-            background: rgba(255, 255, 255, 0.96);
-            backdrop-filter: blur(10px);
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
-        .card-header-navy {
-            background: var(--navy);
-            color: #fff;
-            padding: 18px 20px;
-            text-align: center;
-            font-size: 1.15rem;
-            font-weight: 700;
-        }
+        body.login-body { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--navy-dark); overflow: hidden; position: relative; }
+        .bg-video, #network-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+        .video-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 25, 48, 0.72); z-index: 1; }
+        .login-card { position: relative; z-index: 2; width: 92%; max-width: 440px; background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(10px); border-radius: 10px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .card-header-navy { background: var(--navy); color: #fff; padding: 18px 20px; text-align: center; font-size: 1.15rem; font-weight: 700; }
         .login-form-wrap { padding: 28px 32px; }
         .login-form-wrap h2 { text-align: center; color: var(--navy); margin-bottom: 20px; font-size: 1.25rem; }
         .form-group { margin-bottom: 15px; }
-        .form-group input {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1.5px solid #444;
-            border-radius: 5px;
-            font-size: 0.95rem;
-        }
-        .btn-primary {
-            width: 100%;
-            padding: 12px;
-            background: var(--navy);
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
+        .form-group input { width: 100%; padding: 12px 14px; border: 1.5px solid #444; border-radius: 5px; font-size: 0.95rem; }
+        .btn-primary { width: 100%; padding: 12px; background: var(--navy); color: #fff; border: none; border-radius: 5px; font-size: 1rem; font-weight: 600; cursor: pointer; }
         .btn-primary:hover { background: #132744; }
-        .divider {
-            display: flex; align-items: center; text-align: center;
-            margin: 18px 0; color: #666; font-size: 0.85rem;
-        }
+        .divider { display: flex; align-items: center; text-align: center; margin: 18px 0; color: #666; font-size: 0.85rem; }
         .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #ccc; }
         .divider:not(:empty)::before { margin-right: .75em; }
         .divider:not(:empty)::after { margin-left: .75em; }
         .google-btn-wrap { display: flex; justify-content: center; margin-bottom: 14px; }
-        .btn-google {
-            width: 100%;
-            padding: 11px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            background: #fff;
-            border: 1.5px solid var(--navy);
-            color: var(--navy);
-            border-radius: 5px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .btn-google:hover { background: #f0f4f9; }
         .auth-links { text-align: center; font-size: 0.88rem; color: #555; margin-top: 12px; }
         .auth-links a { color: var(--navy); font-weight: 600; text-decoration: none; }
         .alert-error { background: #fdecea; color: var(--danger); padding: 10px; border-radius: 5px; margin-bottom: 14px; font-size: 0.9rem; border: 1px solid #f5c6cb; display: none; }
@@ -127,18 +48,19 @@
 
             <form id="login-form">
                 <div class="form-group">
-                    <input type="text" id="username" placeholder="Username or Email (Demo: admin)" required>
+                    <input type="text" id="username" placeholder="Username" required>
                 </div>
                 <div class="form-group">
-                    <input type="password" id="password" placeholder="Password (Demo: password123)" required>
+                    <input type="password" id="password" placeholder="Password" required>
                 </div>
                 <button type="submit" class="btn-primary">Login</button>
             </form>
 
             <div class="divider">OR</div>
 
+            
             <div class="google-btn-wrap">
-                <div id="google-btn-container" style="width:100%;"></div>
+                <div id="google-btn-container"></div>
             </div>
 
             <div class="auth-links">
@@ -148,9 +70,11 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
     <script>
-        // Built-in Live Network Canvas Animation
+        // PASTE YOUR REAL GOOGLE CLIENT ID BELOW
+        const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_://googleusercontent.com";
+
+        // Animated Background
         const canvas = document.getElementById('network-canvas');
         const ctx = canvas.getContext('2d');
         let width, height, particles;
@@ -187,19 +111,20 @@
         window.addEventListener('resize', initCanvas);
         initCanvas(); drawCanvas();
 
-        // Auth Logic
-        if (typeof getCurrentUser === 'function' && getCurrentUser()) {
+        // Check active session
+        if (localStorage.getItem('kis_current_user')) {
             window.location.href = 'dashboard.html';
         }
         if (new URLSearchParams(window.location.search).get('registered')) {
             document.getElementById('login-success').style.display = 'block';
         }
 
+        // Standard Account Login
         document.getElementById('login-form').addEventListener('submit', function(e) {
             e.preventDefault();
             const input = document.getElementById('username').value.trim();
             const pass = document.getElementById('password').value;
-            const users = typeof getUsers === 'function' ? getUsers() : [{ username: 'admin', email: 'admin@kiambuinetsolutions.co.ke', password: 'password123', role: 'Management' }];
+            const users = JSON.parse(localStorage.getItem('kis_users') || '[]');
             const user = users.find(u => (u.username === input || u.email === input) && u.password === pass);
 
             if (user) {
@@ -207,13 +132,47 @@
                 window.location.href = 'dashboard.html';
             } else {
                 const err = document.getElementById('login-error');
-                err.textContent = 'Invalid username or password. Try admin / password123.';
+                err.textContent = 'Invalid username or password. Please sign up or continue with Google.';
                 err.style.display = 'block';
             }
         });
 
+        // Google OAuth Token Handler
+        function handleGoogleCredentialResponse(response) {
+            try {
+                const parts = response.credential.split('.');
+                const base64 = parts.replace(/-/g, '+').replace(/_/g, '/');
+                const payload = JSON.parse(decodeURIComponent(atob(base64).split('').map(c =>
+                    '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+                ).join('')));
+
+                const users = JSON.parse(localStorage.getItem('kis_users') || '[]');
+                let existing = users.find(u => u.email === payload.email);
+
+                if (!existing) {
+                    existing = {
+                        username: payload.name || payload.email.split('@'),
+                        email: payload.email,
+                        password: null,
+                        role: 'Technician',
+                        googleId: payload.sub
+                    };
+                    users.push(existing);
+                    localStorage.setItem('kis_users', JSON.stringify(users));
+                }
+
+                localStorage.setItem('kis_current_user', JSON.stringify(existing));
+                window.location.href = 'dashboard.html';
+            } catch (err) {
+                const errBox = document.getElementById('login-error');
+                errBox.textContent = 'Google Sign-In error: ' + err.message;
+                errBox.style.display = 'block';
+            }
+        }
+
+        // Initialize Real Google Sign-In Button
         window.onload = function() {
-            if (window.google && typeof GOOGLE_CLIENT_ID !== 'undefined' && GOOGLE_CLIENT_ID !== "YOUR_GOOGLE_CLIENT_://googleusercontent.com") {
+            if (window.google) {
                 google.accounts.id.initialize({
                     client_id: GOOGLE_CLIENT_ID,
                     callback: handleGoogleCredentialResponse
@@ -222,6 +181,8 @@
                     document.getElementById("google-btn-container"),
                     { theme: "outline", size: "large", width: 376, text: "continue_with" }
                 );
-            } else {
-                document.getElementById("google-btn-container").innerHTML =
-                    `<button type="button" onclick="demoGoogleLogin()" class="btn-google">
+            }
+        };
+    </script>
+</body>
+</html>
