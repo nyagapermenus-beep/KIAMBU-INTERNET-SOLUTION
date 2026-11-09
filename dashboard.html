@@ -111,28 +111,34 @@
 </div>
 
 <script>
-    if (!localStorage.getItem('kis_devices')) {
-        localStorage.setItem('kis_devices', JSON.stringify([
+    let seedDevices = JSON.parse(localStorage.getItem('kis_devices') || '[]');
+    if (!Array.isArray(seedDevices) || seedDevices.length === 0) {
+        seedDevices = [
             { id: 1, name: 'Core-Router-1', ip: '192.168.1.1', type: 'Router', status: 'Up', lastPolled: '2 min ago' },
             { id: 2, name: 'Switch-Floor2', ip: '192.168.1.5', type: 'Switch', status: 'Up', lastPolled: '2 min ago' },
             { id: 3, name: 'AP-Reception', ip: '192.168.1.20', type: 'Access Point', status: 'Down', lastPolled: '9 min ago' },
             { id: 4, name: 'Core-Router-2', ip: '192.168.1.2', type: 'Router', status: 'Up', lastPolled: '1 min ago' }
-        ]));
+        ];
+        localStorage.setItem('kis_devices', JSON.stringify(seedDevices));
     }
-    if (!localStorage.getItem('kis_logs')) {
-        localStorage.setItem('kis_logs', JSON.stringify([
+
+    let seedLogs = JSON.parse(localStorage.getItem('kis_logs') || '[]');
+    if (!Array.isArray(seedLogs) || seedLogs.length === 0) {
+        seedLogs = [
             { timestamp: '2026-11-09 08:00:01', device: 'Core-Router-1', bytesInMB: 1228.8, bytesOutMB: 819.2, status: 'Normal' },
             { timestamp: '2026-11-09 08:00:01', device: 'Switch-Floor2', bytesInMB: 450.0, bytesOutMB: 300.0, status: 'Normal' },
             { timestamp: '2026-11-09 08:00:01', device: 'AP-Reception', bytesInMB: 0, bytesOutMB: 0, status: 'Unreachable' },
             { timestamp: '2026-11-09 08:05:01', device: 'Core-Router-1', bytesInMB: 1433.6, bytesOutMB: 921.6, status: 'Normal' }
-        ]));
+        ];
+        localStorage.setItem('kis_logs', JSON.stringify(seedLogs));
     }
 
     const user = JSON.parse(localStorage.getItem('kis_current_user') || 'null');
     if (!user) window.location.href = 'index.html';
     if (user) {
-        document.getElementById('nav-username').textContent = user.username;
-        document.getElementById('dashboard-title').textContent = `Device Dashboard - ${user.role || 'Technician'} View`;
+        const displayName = Array.isArray(user.username) ? user.username : (user.username || user.email || 'User');
+        document.getElementById('nav-username').textContent = displayName;
+        document.getElementById('dashboard-title').textContent = 'Device Dashboard - ' + (user.role || 'Technician') + ' View';
     }
 
     function logoutUser() {
@@ -140,10 +146,10 @@
         window.location.href = 'index.html';
     }
 
-    const getDevices = () => JSON.parse(localStorage.getItem('kis_devices') || '[]');
-    const saveDevices = (d) => localStorage.setItem('kis_devices', JSON.stringify(d));
-    const getLogs = () => JSON.parse(localStorage.getItem('kis_logs') || '[]');
-    const saveLogs = (l) => localStorage.setItem('kis_logs', JSON.stringify(l));
+    function getDevices() { return JSON.parse(localStorage.getItem('kis_devices') || '[]'); }
+    function saveDevices(d) { localStorage.setItem('kis_devices', JSON.stringify(d)); }
+    function getLogs() { return JSON.parse(localStorage.getItem('kis_logs') || '[]'); }
+    function saveLogs(l) { localStorage.setItem('kis_logs', JSON.stringify(l)); }
 
     let chartInstance = null;
 
@@ -152,33 +158,18 @@
         const tbody = document.getElementById('device-table-body');
         tbody.innerHTML = '';
 
-        const downList = devices.filter(d => d.status === 'Down');
+        const downList = devices.filter(function(d) { return d.status === 'Down'; });
         const banner = document.getElementById('downtime-banner');
         if (downList.length > 0) {
             banner.style.display = 'block';
-            banner.textContent = `⚠️ DOWNTIME ALERT: ${downList.length} device(s) unreachable — ${downList.map(d => d.name).join(', ')}. Immediate technician attention required.`;
+            banner.textContent = '⚠️ DOWNTIME ALERT: ' + downList.length + ' device(s) unreachable — ' + downList.map(function(d) { return d.name; }).join(', ') + '. Immediate technician attention required.';
         } else {
             banner.style.display = 'none';
         }
 
-        devices.forEach(d => {
+        devices.forEach(function(d) {
             const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td><strong>${d.name}</strong></td>
-                <td>${d.ip}</td>
-                <td>${d.type}</td>
-                <td class="${d.status === 'Up' ? 'status-up' : 'status-down'}">${d.status}</td>
-                <td>${d.lastPolled}</td>
-                <td>
-                    <button class="btn-sm btn-outline" onclick="openEditModal(${d.id})">Update</button>
-                    <button class="btn-sm btn-danger" onclick="deleteDevice(${d.id})">Delete</button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-
-        renderChart(devices);
-    }
-
-    function renderChart(devices) {
-        const logs = getLogs();
+            const statusClass = d.status === 'Up' ? 'status-up' : 'status-down';
+            tr.innerHTML = '<td><strong>' + d.name + '</strong></td>' +
+                '<td>' + d.ip + '</td>' +
+                '<td>' + d.type + '</td>' +
