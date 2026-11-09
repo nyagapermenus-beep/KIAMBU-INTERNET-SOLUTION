@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Dashboard | Kiambu Internet Solutions</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://jsdelivr.net"></script>
+</head>
+<body class="app-body">
+
+<div class="topbar">
+    <div class="brand">Kiambu Internet Solutions - Network Monitor</div>
+    <nav>
+        <a href="dashboard.html" class="active">Device Dashboard</a>
+        <a href="traffic-log.html">Traffic Log</a>
+        <a href="reports.html">Reports</a>
+        <a onclick="logoutUser()">Logout (<span id="nav-username"></span>)</a>
+    </nav>
+</div>
+
+<div class="container">
+    <div id="downtime-banner" class="downtime-banner"></div>
+
+    <div class="panel">
+        <div class="panel-header">
+            <span id="dashboard-title">Device Dashboard - Technician View</span>
+            <button class="btn-sm btn-cyan" onclick="triggerPoll()">⟳ Run SNMP Poll Now</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Device Name</th>
+                    <th>IP Address</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Last Polled</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="device-table-body"></tbody>
+        </table>
+        <button class="btn-add" onclick="openAddModal()">+ Add New Device</button>
+    </div>
+
+    <div class="panel">
+        <div class="panel-header">Live Bandwidth Overview (Bytes In vs Bytes Out)</div>
+        <div style="padding: 20px;">
+            <canvas id="trafficChart" height="95"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Add / Edit Device Modal -->
+<div id="deviceModal" class="modal">
+    <div class="modal-content">
+        <div class="card-header-navy" id="modal-title">Add New Device</div>
+        <div class="modal-body">
+            <form id="device-form">
+                <input type="hidden" id="dev-id">
+                <div class="form-group"><input type="text" id="dev-name" placeholder="Device Name (e.g. Core-Router-3)" required></div>
+                <div class="form-group"><input type="text" id="dev-ip" placeholder="IP Address (e.g. 192.168.1.10)" required></div>
+                <div class="form-group">
+                    <select id="dev-type">
+                        <option value="Router">Router</option>
+                        <option value="Switch">Switch</option>
+                        <option value="Access Point">Access Point</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select id="dev-status">
+                        <option value="Up">Up</option>
+                        <option value="Down">Down</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Save Device</button>
+                <button type="button" class="btn-sm" style="margin-top:10px; width:100%;" onclick="closeModal()">Cancel</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="assets/js/app.js"></script>
+<script>
+    const user = requireAuth();
+    if (user) {
+        document.getElementById('dashboard-title').textContent = `Device Dashboard - ${user.role} View`;
+    }
+
+    let chartInstance = null;
+
+    function renderDashboard() {
+        const devices = getDevices();
+        const tbody = document.getElementById('device-table-body');
+        tbody.innerHTML = '';
+
+        const downList = devices.filter(d => d.status === 'Down');
+        const banner = document.getElementById('downtime-banner');
+        if (downList.length > 0) {
+            banner.style.display = 'block';
+            banner.textContent = `⚠️ DOWNTIME ALERT: ${downList.length} device(s) unreachable — ${downList.map(d => d.name).join(', ')}. Immediate technician attention required.`;
+        } else {
+            banner.style.display = 'none';
+        }
+
+        devices.forEach(d => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${d.name}</strong></td>
+                <td>${d.ip}</td>
+                <td>${d.type}</td>
+                <td class="${d.status === 'Up' ? 'status-up' : 'status-down'}">${d.status}</td>
+                <td>${d.lastPolled}</td>
+                <td>
+                    <button class="btn-sm btn-outline" onclick="openEditModal(${d.id})">Update</button>
+                    <button class="btn-sm btn-danger" onclick="deleteDevice(${d.id})">Delete</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        renderChart(devices);
+    }
+
+    function renderChart(devices) {
+        const logs = getLogs();
+        const inData = devices.map(d => {
+            const latest = logs.find(l => l.device === d.name);
+            return latest ? latest.bytesInMB : 0;
+        });
+        const outData = devices.map(d => {
+            const latest = logs.find(l => l.device === d.name);
+            return latest ? latest.bytesOutMB : 0;
+        });
+
+        if (chartInstance) chartInstance.destroy();
+        chartInstance = new Chart(document.getElementById('trafficChart'), {
+            type: 'bar',
+            data: {
+                labels: devices.map(d => d.name),
+                datasets: [
+                    { label: 'Bytes In (MB)', data: inData, backgroundColor: '#1b365d' },
+                    { label: 'Bytes Out (MB)', data: outData, backgroundColor: '#00a8cc' }
+                ]
+            }
+        });
+    }
+
+    function openAddModal() {
+        document.getElementById('modal-title').textContent = 'Add New Network Device';
+        document.getElementById('dev-id').value = '';
+        document.getElementById('device-form').reset();
+        document.getElementById('deviceModal').classList.add('open');
+    }
+
+    function openEditModal(id) {
+        const d = getDevices().find(item => item.id === id);
+        if (!d) return;
+        document.getElementById('modal-title').textContent = 'Update Device Record';
+        document.getElementById('dev-id').value = d.id;
+        document.getElementById('dev-name').value = d.name;
+        document.getElementById('dev-ip').value = d.ip;
+        document.getElementById('dev-type').value = d.type;
+        document.getElementById('dev-status').value = d.status;
+        document.getElementById('deviceModal').classList.add('open');
+    }
+
+    function closeModal() { document.getElementById('deviceModal').classList.remove('open'); }
+
+    document.getElementById('device-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const id = document.getElementById('dev-id').value;
+        const name = document.getElementById('dev-name').value.trim();
+        const ip = document.getElementById('dev-ip').value.trim();
+        const type = document.getElementById('dev-type').value;
+        const status = document.getElementById('dev-status').value;
+
+        let devices = getDevices();
+        if (id) {
+            devices = devices.map(d => d.id == id ? { ...d, name, ip, type, status, lastPolled: 'Updated just now' } : d);
+        } else {
+            devices.push({ id: Date.now(), name, ip, type, status, lastPolled: 'Just added' });
+        }
+        saveDevices(devices);
+        closeModal();
+        renderDashboard();
+    });
+
+    function deleteDevice(id) {
+        if (!confirm('Remove this device from monitoring?')) return;
+        saveDevices(getDevices().filter(d => d.id !== id));
+        renderDashboard();
+    }
+
+    function triggerPoll() {
+        runSnmpPoll();
+        renderDashboard();
+        alert('SNMP poll complete! Traffic log and charts updated.');
+    }
+
+    renderDashboard();
+</script>
+</body>
+</html>
