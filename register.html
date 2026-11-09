@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up | Kiambu Internet Solutions</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="login-body">
+    <canvas id="network-canvas"></canvas>
+    <div class="video-overlay"></div>
+
+    <div class="login-card">
+        <div class="card-header-navy">Kiambu Internet Solutions - Sign Up</div>
+        <div class="login-form-wrap">
+            <h2>Create Staff Account</h2>
+            <div id="reg-error" class="alert-error"></div>
+
+            <form id="register-form">
+                <div class="form-group"><input type="text" id="reg-username" placeholder="Choose Username" required></div>
+                <div class="form-group"><input type="email" id="reg-email" placeholder="Work Email Address" required></div>
+                <div class="form-group">
+                    <select id="reg-role">
+                        <option value="Technician">Role: Technician</option>
+                        <option value="Management">Role: Management</option>
+                    </select>
+                </div>
+                <div class="form-group"><input type="password" id="reg-password" placeholder="Create Password (min 6 chars)" required></div>
+                <button type="submit" class="btn-primary">Create Account</button>
+            </form>
+
+            <div class="auth-links">
+                Already have an account? <a href="index.html">Back to Login</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/network-bg.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script>
+        document.getElementById('register-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('reg-username').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const role = document.getElementById('reg-role').value;
+            const password = document.getElementById('reg-password').value;
+            const err = document.getElementById('reg-error');
+
+            if (password.length < 6) {
+                err.textContent = 'Password must be at least 6 characters.';
+                err.style.display = 'block';
+                return;
+            }
+
+            const users = getUsers();
+            if (users.some(u => u.username === username || u.email === email)) {
+                err.textContent = 'Username or email is already registered.';
+                err.style.display = 'block';
+                return;
+            }
+
+            users.push({ username, email, password, role });
+            saveUsers(users);
+            window.location.href = 'index.html?registered=1';
+        });
+    </script>
+</body>
+</html>
