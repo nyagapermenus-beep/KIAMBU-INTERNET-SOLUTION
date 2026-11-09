@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Kiambu Internet Solutions - Network Monitor</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://google.com" async defer></script>
+</head>
+<body class="login-body">
+
+    <video autoplay muted loop playsinline poster="assets/img/login-bg.png" class="bg-video">
+        <source src="assets/video/network-bg.mp4" type="video/mp4">
+    </video>
+    <canvas id="network-canvas"></canvas>
+    <div class="video-overlay"></div>
+
+    <div class="login-card">
+        <div class="card-header-navy">Kiambu Internet Solutions - Network Monitor</div>
+        <div class="login-form-wrap">
+            <h2>Technician / Management Login</h2>
+
+            <div id="login-error" class="alert-error"></div>
+            <div id="login-success" class="alert-success">Account created! You can now log in.</div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <input type="text" id="username" placeholder="Username or Email (Demo: admin)" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="password" placeholder="Password (Demo: password123)" required>
+                </div>
+                <button type="submit" class="btn-primary">Login</button>
+            </form>
+
+            <div class="divider">OR</div>
+
+            <!-- Google Sign-In Button -->
+            <div class="google-btn-wrap">
+                <div id="google-btn-container"></div>
+            </div>
+
+            <div class="auth-links">
+                Don't have an account? <a href="register.html">Sign Up</a><br><br>
+                <span style="color:#777; font-size:0.82rem;">Forgot password? Contact system administrator</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/network-bg.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script>
+        if (getCurrentUser()) window.location.href = 'dashboard.html';
+        if (new URLSearchParams(window.location.search).get('registered')) {
+            document.getElementById('login-success').style.display = 'block';
+        }
+
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const input = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value;
+            const user = getUsers().find(u => (u.username === input || u.email === input) && u.password === pass);
+
+            if (user) {
+                localStorage.setItem('kis_current_user', JSON.stringify(user));
+                window.location.href = 'dashboard.html';
+            } else {
+                const err = document.getElementById('login-error');
+                err.textContent = 'Invalid username or password. Try admin / password123.';
+                err.style.display = 'block';
+            }
+        });
+
+        window.onload = function() {
+            if (window.google && GOOGLE_CLIENT_ID !== "YOUR_GOOGLE_CLIENT_://googleusercontent.com") {
+                google.accounts.id.initialize({
+                    client_id: GOOGLE_CLIENT_ID,
+                    callback: handleGoogleCredentialResponse
+                });
+                google.accounts.id.renderButton(
+                    document.getElementById("google-btn-container"),
+                    { theme: "outline", size: "large", width: 320, text: "continue_with" }
+                );
+            } else {
+                // Fallback demo button until you paste your Google Client ID in app.js
+                document.getElementById("google-btn-container").innerHTML =
+                    `<button type="button" onclick="demoGoogleLogin()" class="btn-sm btn-outline" style="width:100%; padding:10px; display:flex; align-items:center; justify-content:center; gap:8px;">
+                        <img src="https://gstatic.com" width="18"> Continue with Google
+                    </button>`;
+            }
+        };
+
+        function demoGoogleLogin() {
+            const email = prompt("Enter your Google email to simulate Google Sign-In:", "technician@gmail.com");
+            if (!email) return;
+            const users = getUsers();
+            let user = users.find(u => u.email === email);
+            if (!user) {
+                user = { username: email.split('@')[0], email: email, password: null, role: 'Technician' };
+                users.push(user);
+                saveUsers(users);
+            }
+            localStorage.setItem('kis_current_user', JSON.stringify(user));
+            window.location.href = 'dashboard.html';
+        }
+    </script>
+</body>
+</html>
