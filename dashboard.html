@@ -4,10 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Device Dashboard | Kiambu Internet Solutions</title>
-    <link rel="stylesheet" href="style.css">
     <script src="https://jsdelivr.net"></script>
+    <style>
+        :root { --navy: #1b365d; --navy-dark: #0f213c; --cyan: #00d2ff; --bg-light: #f4f7fa; --border: #dce3ec; --danger: #d93025; --success: #188038; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: var(--bg-light); color: #222; }
+        .topbar { background: var(--navy); color: #fff; padding: 14px 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .topbar .brand { font-weight: 700; font-size: 1.15rem; }
+        .topbar nav a { color: #dbe7f7; text-decoration: none; margin-left: 18px; font-size: 0.95rem; font-weight: 500; cursor: pointer; }
+        .topbar nav a.active, .topbar nav a:hover { color: #fff; text-decoration: underline; }
+        .container { max-width: 1150px; margin: 26px auto; padding: 0 20px; }
+        .downtime-banner { background: #fdecea; border-left: 5px solid var(--danger); color: #8a1c14; padding: 14px 18px; border-radius: 6px; margin-bottom: 20px; font-weight: 600; display: none; }
+        .panel { background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); overflow: hidden; margin-bottom: 24px; }
+        .panel-header { background: var(--navy); color: #fff; padding: 14px 20px; font-size: 1.1rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #234270; color: #fff; text-align: left; padding: 12px 16px; font-size: 0.92rem; }
+        td { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 0.94rem; }
+        tr:nth-child(even) { background: #f9fbfd; }
+        .status-up { color: var(--success); font-weight: 600; }
+        .status-down { color: var(--danger); font-weight: 700; }
+        .btn-sm { padding: 6px 12px; border-radius: 4px; border: none; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+        .btn-outline { background: transparent; border: 1px solid var(--navy); color: var(--navy); }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-cyan { background: var(--cyan); color: var(--navy-dark); }
+        .btn-add { display: inline-block; margin: 14px 16px; color: var(--navy); font-weight: 700; cursor: pointer; background: none; border: none; font-size: 0.95rem; }
+        .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
+        .modal.open { display: flex; }
+        .modal-content { background: #fff; width: 95%; max-width: 440px; border-radius: 8px; overflow: hidden; }
+        .card-header-navy { background: var(--navy); color: #fff; padding: 16px; text-align: center; font-weight: 700; }
+        .modal-body { padding: 20px; }
+        .form-group { margin-bottom: 14px; }
+        .form-group input, .form-group select { width: 100%; padding: 11px; border: 1.5px solid #444; border-radius: 5px; font-size: 0.95rem; }
+        .btn-primary { width: 100%; padding: 12px; background: var(--navy); color: #fff; border: none; border-radius: 5px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+    </style>
 </head>
-<body class="app-body">
+<body>
 
 <div class="topbar">
     <div class="brand">Kiambu Internet Solutions - Network Monitor</div>
@@ -79,12 +110,40 @@
     </div>
 </div>
 
-<script src="app.js"></script>
 <script>
-    const user = requireAuth();
-    if (user) {
-        document.getElementById('dashboard-title').textContent = `Device Dashboard - ${user.role} View`;
+    if (!localStorage.getItem('kis_devices')) {
+        localStorage.setItem('kis_devices', JSON.stringify([
+            { id: 1, name: 'Core-Router-1', ip: '192.168.1.1', type: 'Router', status: 'Up', lastPolled: '2 min ago' },
+            { id: 2, name: 'Switch-Floor2', ip: '192.168.1.5', type: 'Switch', status: 'Up', lastPolled: '2 min ago' },
+            { id: 3, name: 'AP-Reception', ip: '192.168.1.20', type: 'Access Point', status: 'Down', lastPolled: '9 min ago' },
+            { id: 4, name: 'Core-Router-2', ip: '192.168.1.2', type: 'Router', status: 'Up', lastPolled: '1 min ago' }
+        ]));
     }
+    if (!localStorage.getItem('kis_logs')) {
+        localStorage.setItem('kis_logs', JSON.stringify([
+            { timestamp: '2026-11-09 08:00:01', device: 'Core-Router-1', bytesInMB: 1228.8, bytesOutMB: 819.2, status: 'Normal' },
+            { timestamp: '2026-11-09 08:00:01', device: 'Switch-Floor2', bytesInMB: 450.0, bytesOutMB: 300.0, status: 'Normal' },
+            { timestamp: '2026-11-09 08:00:01', device: 'AP-Reception', bytesInMB: 0, bytesOutMB: 0, status: 'Unreachable' },
+            { timestamp: '2026-11-09 08:05:01', device: 'Core-Router-1', bytesInMB: 1433.6, bytesOutMB: 921.6, status: 'Normal' }
+        ]));
+    }
+
+    const user = JSON.parse(localStorage.getItem('kis_current_user') || 'null');
+    if (!user) window.location.href = 'index.html';
+    if (user) {
+        document.getElementById('nav-username').textContent = user.username;
+        document.getElementById('dashboard-title').textContent = `Device Dashboard - ${user.role || 'Technician'} View`;
+    }
+
+    function logoutUser() {
+        localStorage.removeItem('kis_current_user');
+        window.location.href = 'index.html';
+    }
+
+    const getDevices = () => JSON.parse(localStorage.getItem('kis_devices') || '[]');
+    const saveDevices = (d) => localStorage.setItem('kis_devices', JSON.stringify(d));
+    const getLogs = () => JSON.parse(localStorage.getItem('kis_logs') || '[]');
+    const saveLogs = (l) => localStorage.setItem('kis_logs', JSON.stringify(l));
 
     let chartInstance = null;
 
@@ -123,81 +182,3 @@
 
     function renderChart(devices) {
         const logs = getLogs();
-        const inData = devices.map(d => {
-            const latest = logs.find(l => l.device === d.name);
-            return latest ? latest.bytesInMB : 0;
-        });
-        const outData = devices.map(d => {
-            const latest = logs.find(l => l.device === d.name);
-            return latest ? latest.bytesOutMB : 0;
-        });
-
-        if (chartInstance) chartInstance.destroy();
-        chartInstance = new Chart(document.getElementById('trafficChart'), {
-            type: 'bar',
-            data: {
-                labels: devices.map(d => d.name),
-                datasets: [
-                    { label: 'Bytes In (MB)', data: inData, backgroundColor: '#1b365d' },
-                    { label: 'Bytes Out (MB)', data: outData, backgroundColor: '#00a8cc' }
-                ]
-            }
-        });
-    }
-
-    function openAddModal() {
-        document.getElementById('modal-title').textContent = 'Add New Network Device';
-        document.getElementById('dev-id').value = '';
-        document.getElementById('device-form').reset();
-        document.getElementById('deviceModal').classList.add('open');
-    }
-
-    function openEditModal(id) {
-        const d = getDevices().find(item => item.id === id);
-        if (!d) return;
-        document.getElementById('modal-title').textContent = 'Update Device Record';
-        document.getElementById('dev-id').value = d.id;
-        document.getElementById('dev-name').value = d.name;
-        document.getElementById('dev-ip').value = d.ip;
-        document.getElementById('dev-type').value = d.type;
-        document.getElementById('dev-status').value = d.status;
-        document.getElementById('deviceModal').classList.add('open');
-    }
-
-    function closeModal() { document.getElementById('deviceModal').classList.remove('open'); }
-
-    document.getElementById('device-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const id = document.getElementById('dev-id').value;
-        const name = document.getElementById('dev-name').value.trim();
-        const ip = document.getElementById('dev-ip').value.trim();
-        const type = document.getElementById('dev-type').value;
-        const status = document.getElementById('dev-status').value;
-
-        let devices = getDevices();
-        if (id) {
-            devices = devices.map(d => d.id == id ? { ...d, name, ip, type, status, lastPolled: 'Updated just now' } : d);
-        } else {
-            devices.push({ id: Date.now(), name, ip, type, status, lastPolled: 'Just added' });
-        }
-        saveDevices(devices);
-        closeModal();
-        renderDashboard();
-    });
-
-    function deleteDevice(id) {
-        if (!confirm('Remove this device from monitoring?')) return;
-        saveDevices(getDevices().filter(d => d.id !== id));
-        renderDashboard();
-    }
-
-    function triggerPoll() {
-        runSnmpPoll();
-        renderDashboard();
-        alert('SNMP poll complete! Traffic log and charts updated.');
-    }
-
-    renderDashboard();
-</script>
-</body>
-</html>
