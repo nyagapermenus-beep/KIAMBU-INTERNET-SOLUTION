@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Log | Kiambu Internet Solutions</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="app-body">
+
+<div class="topbar">
+    <div class="brand">Kiambu Internet Solutions - Network Monitor</div>
+    <nav>
+        <a href="dashboard.html">Device Dashboard</a>
+        <a href="traffic-log.html" class="active">Traffic Log</a>
+        <a href="reports.html">Reports</a>
+        <a onclick="logoutUser()">Logout (<span id="nav-username"></span>)</a>
+    </nav>
+</div>
+
+<div class="container">
+    <div class="panel">
+        <div class="panel-header">
+            <span>Traffic Log</span>
+            <button class="btn-sm btn-cyan" onclick="pollNow()">⟳ Poll Devices</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Device</th>
+                    <th>Bytes In</th>
+                    <th>Bytes Out</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="log-table-body"></tbody>
+        </table>
+
+        <div style="padding: 14px 16px;">
+            <input type="text" id="search-input" onkeyup="renderLogs()" placeholder="Search by device or period (e.g. Core-Router-1 or 08:00)..." style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px;">
+        </div>
+    </div>
+</div>
+
+<script src="assets/js/app.js"></script>
+<script>
+    requireAuth();
+
+    function renderLogs() {
+        const query = document.getElementById('search-input').value.toLowerCase();
+        const logs = getLogs().filter(l =>
+            l.device.toLowerCase().includes(query) ||
+            l.timestamp.toLowerCase().includes(query) ||
+            l.status.toLowerCase().includes(query)
+        );
+
+        const tbody = document.getElementById('log-table-body');
+        tbody.innerHTML = logs.map(l => `
+            <tr>
+                <td>${l.timestamp}</td>
+                <td>${l.device}</td>
+                <td>${formatMB(l.bytesInMB)}</td>
+                <td>${formatMB(l.bytesOutMB)}</td>
+                <td class="${l.status === 'Normal' ? 'status-up' : 'status-down'}">${l.status}</td>
+            </tr>
+        `).join('');
+    }
+
+    function pollNow() {
+        runSnmpPoll();
+        renderLogs();
+    }
+
+    renderLogs();
+</script>
+</body>
+</html>
