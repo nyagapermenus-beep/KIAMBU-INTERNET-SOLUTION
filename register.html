@@ -91,13 +91,6 @@
         window.addEventListener('resize', initCanvas);
         initCanvas(); drawCanvas();
 
-        if (!localStorage.getItem('kis_users')) {
-            localStorage.setItem('kis_users', JSON.stringify([
-                { username: 'admin', email: 'admin@kiambuinetsolutions.co.ke', password: 'password123', role: 'Management' },
-                { username: 'permenus', email: 'permenus@kiambuinetsolutions.co.ke', password: 'password123', role: 'Technician' }
-            ]));
-        }
-
         document.getElementById('register-form').addEventListener('submit', function(e) {
             e.preventDefault();
             const username = document.getElementById('reg-username').value.trim();
@@ -119,7 +112,7 @@
                 return;
             }
 
-            users.push({ username, email, password, role });
+            users.push({ username: username, email: email, password: password, role: role });
             localStorage.setItem('kis_users', JSON.stringify(users));
             window.location.href = 'index.html?registered=1';
         });
