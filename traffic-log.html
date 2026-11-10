@@ -230,7 +230,6 @@
       font-size: 13px;
     }
 
-    /* Apply clean, tech font specifically to metrics & time metrics */
     td:nth-child(1), td:nth-child(3), td:nth-child(4) {
       font-family: var(--terminal-font);
       letter-spacing: -0.3px;
@@ -240,7 +239,6 @@
       background: rgba(0, 210, 255, 0.03);
     }
 
-    /* Live state notification classes handled dynamically inside your array */
     .auth-message {
       font-size: 13px;
       margin-top: 15px;
@@ -290,7 +288,7 @@
             </tr>
           </thead>
           <tbody id="log-rows">
-            <!-- Populated dynamically via app.js template loop -->
+            <!-- Populated dynamically via app.js -->
           </tbody>
         </table>
       </div>
@@ -300,6 +298,14 @@
   </main>
 </div>
 
+<script>
+  // Dedicated Logout Core Engine Override
+  function logoutUser() {
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.href = "index.html";
+  }
+</script>
 <script src="js/app.js"></script>
 </body>
 </html>
