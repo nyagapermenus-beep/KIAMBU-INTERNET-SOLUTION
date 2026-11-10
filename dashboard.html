@@ -1,154 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Neural Dashboard | Kiambu Internet Solutions</title>
-  <script src="https://jsdelivr.net"></script>
-  <style>
-    :root {
-      --bg-dark: #0a0e17;
-      --panel-bg: rgba(16, 24, 40, 0.75);
-      --accent-cyan: #00d2ff;
-      --accent-purple: #9d4edd;
-      --accent-green: #39ff14;
-      --accent-red: #ff3333;
-      --text-main: #f0f4f8;
-      --text-muted: #8a99ad;
-      --border-cyber: rgba(0, 210, 255, 0.15);
-    }
-    body {
-      margin: 0; padding: 0; background-color: var(--bg-dark);
-      background-image: 
-        radial-gradient(at 0% 0%, rgba(157, 78, 221, 0.15) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(0, 210, 255, 0.15) 0px, transparent 50%),
-        linear-gradient(rgba(18, 18, 18, 0.4) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(18, 18, 18, 0.4) 1px, transparent 1px);
-      background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px;
-      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-      color: var(--text-main);
-    }
-    .app-shell { display: flex; flex-direction: column; min-height: 100vh; }
-    .topbar { display: flex; justify-content: space-between; align-items: center; background: rgba(10, 14, 23, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-cyber); padding: 15px 40px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); }
-    .top-brand { font-weight: 800; letter-spacing: 1.5px; color: var(--text-main); font-size: 18px; }
-    .top-brand span { color: var(--accent-cyan); font-weight: 300; }
-    .nav { display: flex; gap: 10px; }
-    .nav a { color: var(--text-muted); text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 500; transition: all 0.3s ease; border: 1px solid transparent; }
-    .nav a:hover, .nav a.active { color: var(--accent-cyan); background: rgba(0, 210, 255, 0.08); border-color: rgba(0, 210, 255, 0.3); text-shadow: 0 0 8px rgba(0, 210, 255, 0.5); }
-    .nav-user { font-size: 13px; color: var(--text-muted); }
-    .nav-user span { color: var(--text-main); font-weight: 600; }
-    .logout { background: transparent; border: 1px solid var(--accent-red); color: var(--accent-red); padding: 5px 12px; border-radius: 4px; cursor: pointer; margin-left: 10px; transition: all 0.3s; }
-    .logout:hover { background: rgba(255, 51, 51, 0.15); box-shadow: 0 0 10px rgba(255, 51, 51, 0.3); }
-    .container { max-width: 1400px; width: 90%; margin: 30px auto; flex-grow: 1; }
-    .page-heading { margin-bottom: 25px; }
-    .page-heading h1 { margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
-    .page-heading p { margin: 5px 0 0 0; color: var(--text-muted); font-size: 14px; }
-    .notice { background: rgba(157, 78, 221, 0.08); border-left: 4px solid var(--accent-purple); padding: 12px 20px; border-radius: 0 8px 8px 0; font-size: 13px; color: #cbb2ff; margin-bottom: 30px; }
-    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
-    .stat { background: var(--panel-bg); border: 1px solid var(--border-cyber); padding: 20px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); backdrop-filter: blur(8px); position: relative; overflow: hidden; }
-    .stat::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent); }
-    .stat small { display: block; color: var(--text-muted); text-transform: uppercase; font-size: 11px; letter-spacing: 1px; margin-bottom: 5px; }
-    .stat strong { display: block; font-size: 32px; font-weight: 700; color: #fff; margin-bottom: 5px; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
-    .stat em { display: block; font-style: normal; font-size: 12px; color: var(--text-muted); }
-    .ai-dashboard-row { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; margin-bottom: 30px; }
-    .panel { background: var(--panel-bg); border: 1px solid var(--border-cyber); border-radius: 12px; padding: 25px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); backdrop-filter: blur(8px); margin-bottom: 25px; }
-    .panel h3 { margin-top: 0; margin-bottom: 20px; font-size: 16px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--accent-cyan); display: flex; align-items: center; gap: 8px; }
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
-    th { color: var(--text-muted); font-weight: 600; padding: 12px 8px; border-bottom: 1px solid rgba(255,255,255,0.08); }
-    td { padding: 14px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-main); }
-    tr:hover td { background: rgba(0, 210, 255, 0.02); }
-    .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
-    .badge.up { background: rgba(57, 255, 20, 0.15); color: var(--accent-green); }
-    .badge.down { background: rgba(255, 51, 51, 0.15); color: var(--accent-red); }
-    .muted a { color: var(--accent-cyan); text-decoration: none; font-size: 13px; }
-    .muted a:hover { text-decoration: underline; }
-    .pulse-widget { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 0; text-align: center; }
-    .radar-circle { width: 100px; height: 100px; border: 2px solid var(--accent-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 0 20px rgba(57, 255, 20, 0.2); animation: pulseRadar 2s infinite ease-in-out; margin-bottom: 15px; }
-    @keyframes pulseRadar {
-      0% { transform: scale(0.95); box-shadow: 0 0 10px rgba(57, 255, 20, 0.2); }
-      50% { transform: scale(1.02); box-shadow: 0 0 25px rgba(57, 255, 20, 0.5); }
-      100% { transform: scale(0.95); box-shadow: 0 0 10px rgba(57, 255, 20, 0.2); }
-    }
-    .radar-circle span { font-size: 12px; font-weight: 800; color: var(--accent-green); }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Kiambu Internet Solution</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body data-auth="required">
-<div class="app-shell">
-  <header class="topbar">
-    <div class="top-brand">KIAMBU <span>INTERNET SOLUTIONS</span></div>
-    <nav class="nav">
-      <a class="active" href="dashboard.html">Dashboard</a>
-      <a class="" href="devices.html">Device Management</a>
-      <a class="" href="traffic-log.html">Traffic Logs</a>
-      <a class="" href="reports.html">Reports</a>
-    </nav>
-    <div class="nav-user"> <span data-username>User</span> · <span data-role>Role</span> <button class="logout" onclick="logoutUser()">Logout</button></div>
-  </header>
-
-  <main class="container">
-    <div class="page-heading">
-      <div>
-        <h1>Network Dashboard</h1>
-        <p>Overview of monitored devices and recent network activity.</p>
-      </div>
-    </div>
-    
-    <div class="notice">This static version tracks structural sandbox elements dynamically within the local memory profiles.</div>
-    
-    <div class="stats">
-      <div class="stat"><small>Total devices</small><strong id="total-devices">4</strong><em>Registered devices</em></div>
-      <div class="stat"><small>Online devices</small><strong id="online-devices">3</strong><em>Currently marked Up</em></div>
-      <div class="stat"><small>Offline devices</small><strong id="offline-devices">1</strong><em>Currently marked Down</em></div>
-      <div class="stat"><small>Traffic records</small><strong id="total-logs">1,248</strong><em>Stored log entries</em></div>
-    </div>
-
-    <div class="ai-dashboard-row">
-      <section class="panel">
-        <h3>📈 Neural Traffic Trend (24h)</h3>
-        <div style="height: 220px; position: relative;"><canvas id="trafficTrendChart"></canvas></div>
-      </section>
-      <section class="panel">
-        <h3>🧠 AI Anomaly Detection</h3>
-        <div class="pulse-widget">
-          <div class="radar-circle"><span>SECURE</span></div>
-          <div style="font-size: 13px; color: var(--text-muted)">System Integrity: <span style="color: var(--accent-green); font-weight: bold;">100%</span></div>
-          <small style="color: rgba(255,255,255,0.3); font-size: 11px; margin-top: 5px;">0 AI Threats Flagged</small>
+<body class="bg-slate-900 text-slate-100 flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-800 border-r border-slate-700 flex flex-col justify-between p-6">
+        <div>
+            <h2 class="text-xl font-bold text-sky-400 mb-8">KIS Portal</h2>
+            <nav class="space-y-2">
+                <a href="dashboard.html" class="block py-2.5 px-4 rounded bg-sky-600 text-white font-medium">Dashboard</a>
+                <a href="devices.html" class="block py-2.5 px-4 rounded text-slate-300 hover:bg-slate-700">Devices</a>
+                <a href="traffic.html" class="block py-2.5 px-4 rounded text-slate-300 hover:bg-slate-700">Traffic</a>
+                <a href="reports.html" class="block py-2.5 px-4 rounded text-slate-300 hover:bg-slate-700">Reports</a>
+            </nav>
         </div>
-      </section>
-    </div>
+        <button onclick="logout()" class="w-full bg-red-600 hover:bg-red-500 text-white font-medium py-2 rounded transition">Logout</button>
+    </aside>
 
-    <section class="panel">
-      <h3>Device status overview</h3>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Device</th><th>IP Address</th><th>Type</th><th>Status</th><th>Last Polled</th></tr>
-          </thead>
-          <tbody id="device-rows"></tbody>
-        </table>
-      </div>
-      <p class="muted" style="margin-top:14px"><a href="devices.html">Manage all devices →</a></p>
-    </section>
-    <p id="page-message" class="auth-message"></p>
-  </main>
-</div>
+    <!-- Main Content -->
+    <main class="flex-1 p-10">
+        <header class="flex justify-between items-center mb-8 pb-4 border-b border-slate-800">
+            <h1 class="text-3xl font-bold">Network Overview</h1>
+            <span id="user-display" class="text-sm text-slate-400"></span>
+        </header>
 
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    // Sync Local Metrics Engine
-    let saved = JSON.parse(localStorage.getItem("network_devices")) || [
-      { id: 1, name: "Core WAN Gateway", ip: "192.168.1.1", type: "Router", status: "Up", polled: "Just now" },
-      { id: 2, name: "Main HQ Switch", ip: "192.168.1.2", type: "Switch", status: "Up", polled: "2 mins ago" },
-      { id: 3, name: "Data Server 01", ip: "192.168.1.10", type: "Server", status: "Up", polled: "5 mins ago" },
-      { id: 4, name: "Remote Office AP", ip: "192.168.2.5", type: "Access Point", status: "Down", polled: "1 hr ago" }
-    ];
-    if(!localStorage.getItem("network_devices")) {
-      localStorage.setItem("network_devices", JSON.stringify(saved));
-    }
-    
-    document.getElementById("total-devices").innerText = saved.length;
-    document.getElementById("online-devices").innerText = saved.filter(d => d.status === "Up").length;
-    document.getElementById("offline-devices").innerText = saved.filter(d => d.status !== "Up").length;
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow">
+                <h3 class="text-sm text-slate-400">Active Devices</h3>
+                <p class="text-3xl font-bold text-sky-400 mt-2">24 / 26</p>
+            </div>
+            <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow">
+                <h3 class="text-sm text-slate-400">Current Bandwidth Usage</h3>
+                <p class="text-3xl font-bold text-emerald-400 mt-2">420.5 Mbps</p>
+            </div>
+            <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow">
+                <h3 class="text-sm text-slate-400">System Status</h3>
+                <p class="text-3xl font-bold text-green-400 mt-2">Optimal</p>
+            </div>
+        </div>
+    </main>
 
-    const tbody = document.getElementById("device-rows");
+    <script>
+        // Check authentication guard
+        const currentUser = localStorage.getItem('kis_logged_in');
+        if (!currentUser) {
+            window.location.href = 'index.html';
+        } else {
+            document.getElementById('user-display').innerText = `Logged in as: ${currentUser}`;
+        }
+
+        function logout() {
+            localStorage.removeItem('kis_logged_in');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
