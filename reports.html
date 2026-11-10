@@ -1,366 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reports | Kiambu Internet Solutions</title>
-  <!-- Chart.js CDN for historical analytics mapping -->
-  <script src="https://jsdelivr.net"></script>
-  <style>
-    /* Base Reset & Cyberpunk Analytics Theme Override */
-    :root {
-      --bg-dark: #0a0e17;
-      --panel-bg: rgba(16, 24, 40, 0.75);
-      --accent-cyan: #00d2ff;
-      --accent-purple: #9d4edd;
-      --accent-green: #39ff14;
-      --accent-red: #ff3333;
-      --text-main: #f0f4f8;
-      --text-muted: #8a99ad;
-      --border-cyber: rgba(0, 210, 255, 0.15);
-      --terminal-font: 'Courier New', Courier, monospace;
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: var(--bg-dark);
-      background-image: 
-        radial-gradient(at 50% 0%, rgba(157, 78, 221, 0.12) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(0, 210, 255, 0.12) 0px, transparent 50%),
-        linear-gradient(rgba(18, 18, 18, 0.4) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(18, 18, 18, 0.4) 1px, transparent 1px);
-      background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px;
-      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-      color: var(--text-main);
-    }
-
-    .app-shell {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-
-    /* Navigation Header */
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(10, 14, 23, 0.85);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border-cyber);
-      padding: 15px 40px;
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-    }
-
-    .top-brand {
-      font-weight: 800;
-      letter-spacing: 1.5px;
-      color: var(--text-main);
-      font-size: 18px;
-    }
-
-    .top-brand span {
-      color: var(--accent-cyan);
-      font-weight: 300;
-    }
-
-    .nav {
-      display: flex;
-      gap: 10px;
-    }
-
-    .nav a {
-      color: var(--text-muted);
-      text-decoration: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      border: 1px solid transparent;
-    }
-
-    .nav a:hover, .nav a.active {
-      color: var(--accent-cyan);
-      background: rgba(0, 210, 255, 0.08);
-      border-color: rgba(0, 210, 255, 0.3);
-      text-shadow: 0 0 8px rgba(0, 210, 255, 0.5);
-    }
-
-    .nav-user {
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-
-    .logout {
-      background: transparent;
-      border: 1px solid var(--accent-red);
-      color: var(--accent-red);
-      padding: 5px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-left: 10px;
-      transition: all 0.3s;
-    }
-
-    .logout:hover {
-      background: rgba(255, 51, 51, 0.15);
-      box-shadow: 0 0 10px rgba(255, 51, 51, 0.3);
-    }
-
-    /* Main Container Content */
-    .container {
-      max-width: 1400px;
-      width: 90%;
-      margin: 30px auto;
-      flex-grow: 1;
-    }
-
-    .page-heading {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 25px;
-    }
-
-    .page-heading h1 {
-      margin: 0;
-      font-size: 28px;
-      font-weight: 700;
-    }
-
-    .page-heading p {
-      margin: 5px 0 0 0;
-      color: var(--text-muted);
-      font-size: 14px;
-    }
-
-    .form-actions {
-      display: flex;
-      gap: 12px;
-    }
-
-    .btn {
-      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-      border: none;
-      color: #fff;
-      padding: 10px 20px;
-      font-weight: 600;
-      border-radius: 6px;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(157, 78, 221, 0.4);
-    }
-
-    /* Modular Reports Row Layout Grid */
-    .reports-charts-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 25px;
-      margin-bottom: 30px;
-    }
-
-    .panel {
-      background: var(--panel-bg);
-      border: 1px solid var(--border-cyber);
-      border-radius: 12px;
-      padding: 25px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-      backdrop-filter: blur(8px);
-    }
-
-    .panel h3 {
-      margin-top: 0;
-      margin-bottom: 20px;
-      font-size: 15px;
-      text-transform: uppercase;
-      color: var(--accent-cyan);
-      letter-spacing: 0.5px;
-    }
-
-    /* High Density Content Grid View */
-    .table-wrap {
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-      font-size: 14px;
-    }
-
-    th {
-      color: var(--text-muted);
-      font-weight: 600;
-      padding: 12px 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      text-transform: uppercase;
-    }
-
-    td {
-      padding: 14px 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-      color: var(--text-main);
-    }
-
-    td:nth-child(1), td:nth-child(3), td:nth-child(4) {
-      font-family: var(--terminal-font);
-    }
-
-    tr:hover td {
-      background: rgba(0, 210, 255, 0.02);
-    }
-
-    /* Professional Print Formatting Rules */
-    @media print {
-      body { 
-        background: #fff !important; 
-        color: #000 !important; 
-        background-image: none !important;
-      }
-      .topbar, .form-actions, .btn, p { 
-        display: none !important; 
-      }
-      .panel { 
-        border: 1px solid #ccc !important; 
-        background: #fff !important; 
-        color: #000 !important; 
-        box-shadow: none !important; 
-        margin-bottom: 20px !important;
-      }
-      td, th {
-        color: #000 !important;
-        border-bottom: 1px solid #ccc !important;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Kiambu Internet Solution</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-<div class="app-shell">
-  
-  <header class="topbar">
-    <div class="top-brand">KIAMBU <span>INTERNET SOLUTIONS</span></div>
-    <nav class="nav">
-      <a class="" href="dashboard.html">Dashboard</a>
-      <a class="" href="devices.html">Device Management</a>
-      <a class="" href="traffic-log.html">Traffic Logs</a>
-      <a class="active" href="reports.html">Reports</a>
-    </nav>
-    <div class="nav-user">User <button class="logout" onclick="logoutUser()">Logout</button></div>
-  </header>
-
-  <main class="container">
-    <div class="page-heading">
-      <div>
-        <h1>Reports & Exports</h1>
-        <p>Generate a summary of device status and recorded traffic activity.</p>
-      </div>
-      <div class="form-actions">
-        <button class="btn" onclick="exportTrafficCSVLocal()">↓ Export traffic CSV</button>
-        <button class="btn" onclick="printReportLocal()">Print / Save PDF</button>
-      </div>
-    </div>
-
-    <!-- Analytics Dashboard Charts Layer -->
-    <div class="reports-charts-row">
-      <div class="panel">
-        <h3>📊 Protocol Distribution</h3>
-        <div style="height: 200px; position: relative; display: flex; justify-content: center;">
-          <canvas id="protocolDistributionChart"></canvas>
+<body class="bg-slate-900 text-slate-100 flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-800 border-r border-slate-700 flex flex-col justify-between p-6">
+        <div>
+            <h2 class="text-xl font-bold text-sky-400 mb-8">KIS Portal</h2>
+            <nav class="space-y-2">
+                <a href="dashboard.html" class="block py-2.5 px-4 rounded text-slate-300 hover:bg-slate-700">Dashboard</a>
+                <a href="devices.html" class="block py-2.5 px-4 rounded text-slate-300 hover:bg-slate-700">Devices</a>
+                <a href="traffic.html" class="block py-2.5 px-4 rounded text-slate-300 hover:bg-slate-700">Traffic</a>
+                <a href="reports.html" class="block py-2.5 px-4 rounded bg-sky-600 text-white font-medium">Reports</a>
+            </nav>
         </div>
-      </div>
-      
-      <div class="panel">
-        <h3>⚡ Top Bandwidth Consumers</h3>
-        <div style="height: 200px; position: relative;">
-          <canvas id="bandwidthConsumersChart"></canvas>
+        <button onclick="logout()" class="w-full bg-red-600 hover:bg-red-500 text-white font-medium py-2 rounded transition">Logout</button>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-10">
+        <header class="flex justify-between items-center mb-8 pb-4 border-b border-slate-800">
+            <h1 class="text-3xl font-bold">Network Reports & Logs</h1>
+            <button onclick="openAddModal()" class="bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded text-sm font-medium transition">Create Report</button>
+        </header>
+
+        <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-700/50 text-slate-400 text-sm border-b border-slate-700">
+                        <th class="p-4">Report Title</th>
+                        <th class="p-4">Date Generated</th>
+                        <th class="p-4">Type</th>
+                        <th class="p-4 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="reports-table-body" class="divide-y divide-slate-700"></tbody>
+            </table>
         </div>
-      </div>
+    </main>
+
+    <!-- Modal -->
+    <div id="report-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center">
+        <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 w-full max-w-md">
+            <h2 id="modal-title" class="text-xl font-bold mb-4">Edit Report</h2>
+            <input type="hidden" id="report-index">
+            <div class="mb-4">
+                <label class="block text-sm mb-1">Report Title</label>
+                <input type="text" id="rep-title" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded">
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm mb-1">Date</label>
+                <input type="date" id="rep-date" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded">
+            </div>
+            <div class="mb-6">
+                <label class="block text-sm mb-1">Type</label>
+                <input type="text" id="rep-type" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded">
+            </div>
+            <div class="flex justify-end space-x-3">
+                <button onclick="closeModal()" class="px-4 py-2 bg-slate-700 rounded">Cancel</button>
+                <button onclick="saveReport()" class="px-4 py-2 bg-sky-600 rounded">Save</button>
+            </div>
+        </div>
     </div>
 
-    <!-- Tabular Historic Index Logs -->
-    <div class="panel">
-      <h3>Recent traffic records</h3>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Timestamp</th>
-              <th>Device</th>
-              <th>Traffic in</th>
-              <th>Traffic out</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="report-rows"></tbody>
-        </table>
-      </div>
-    </div>
-  </main>
-</div>
+    <script>
+        if (!localStorage.getItem('kis_logged_in')) window.location.href = 'index.html';
 
-<!-- Render Data Engine Layout Configs -->
-<script>
-  const reportRecords = [
-    { time: "2026-11-10 23:44:11", name: "Core WAN Gateway", in: "45210400", out: "125400210", status: "Success" },
-    { time: "2026-11-10 23:42:45", name: "Main HQ Switch", in: "12450110", out: "8450200", status: "Success" },
-    { time: "2026-11-10 23:39:14", name: "Data Server 01", in: "845100560", out: "1940210440", status: "Success" }
-  ];
+        let reports = JSON.parse(localStorage.getItem('kis_reports')) || [
+            { title: 'Monthly Bandwidth Audit - Nov', date: '2026-11-01', type: 'Audit' },
+            { title: 'Node Outage Incident Log', date: '2026-11-05', type: 'Incident' }
+        ];
 
-  document.addEventListener("DOMContentLoaded", function () {
-    // Populate the table directly
-    document.getElementById("report-rows").innerHTML = reportRecords.map(r => `
-      <tr>
-        <td>${r.time}</td>
-        <td><strong>${r.name}</strong></td>
-        <td>${Number(r.in).toLocaleString()} bytes</td>
-        <td>${Number(r.out).toLocaleString()} bytes</td>
-        <td style="color: #39ff14">${r.status}</td>
-      </tr>
-    `).join('');
+        function renderReports() {
+            const tbody = document.getElementById('reports-table-body');
+            tbody.innerHTML = '';
+            reports.forEach((r, index) => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-700/20">
+                        <td class="p-4 font-medium">${r.title}</td>
+                        <td class="p-4 text-slate-300">${r.date}</td>
+                        <td class="p-4 text-sky-400">${r.type}</td>
+                        <td class="p-4 text-right space-x-2">
+                            <button onclick="openEditModal(${index})" class="text-sky-400 hover:underline">Edit</button>
+                            <button onclick="deleteReport(${index})" class="text-red-400 hover:underline">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            localStorage.setItem('kis_reports', JSON.stringify(reports));
+        }
 
-    // Protocol Ring Distribution Rendering
-    const ctxDistribution = document.getElementById('protocolDistributionChart').getContext('2d');
-    new Chart(ctxDistribution, {
-      type: 'doughnut',
-      data: {
-        labels: ['HTTPS', 'SNMP', 'TCP Logs', 'UDP Query'],
-        datasets: [{
-          data:,
-          backgroundColor: ['#00d2ff', '#9d4edd', '#39ff14', '#ff3333'],
-          borderWidth: 0
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'right', labels: { color: '#8a99ad', font: { size: 11 } } }
-        },
-        cutout: '70%'
-      }
-    });
+        function openAddModal() {
+            document.getElementById('modal-title').innerText = 'Create Report';
+            document.getElementById('report-index').value = '';
+            document.getElementById('rep-title').value = '';
+            document.getElementById('rep-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('rep-type').value = 'Performance';
+            document.getElementById('report-modal').classList.remove('hidden');
+        }
 
-    // Horizontal Consumption Chart Rendering
-    const ctxConsumers = document.getElementById('bandwidthConsumersChart').getContext('2d');
-    new Chart(ctxConsumers, {
-      type: 'bar',
-      data: {
-        labels: ['Core Router', 'Server 01', 'HQ Switch', 'Office AP'],
-        datasets: [{
-          data:,
-          backgroundColor: 'rgba(0, 210, 255, 0.75)',
-          borderColor: '#00d2ff',
-          borderWidth: 1,
-          borderRadius: 4
-        }]
-      },
-      options: {
-        indexAxis: 'y',
+        function openEditModal(index) {
+            document.getElementById('modal-title').innerText = 'Edit Report';
+            document.getElementById('report-index').value = index;
+            document.getElementById('rep-title').value = reports[index].title;
+            document.getElementById('rep-date').value = reports[index].date;
+            document.getElementById('rep-type').value = reports[index].type;
+            document.getElementById('report-modal').classList.remove('hidden');
+        }
+
+        function closeModal() { document.getElementById('report-modal').classList.add('hidden'); }
+
+        function saveReport() {
+            const index = document.getElementById('report-index').value;
+            const title = document.getElementById('rep-title').value.trim();
+            const date = document.getElementById('rep-date').value;
+            const type = document.getElementById('rep-type').value.trim();
+
+            if (!title) return;
+            if (index === '') reports.push({ title, date, type });
+            else reports[index] = { title, date, type };
+
+            closeModal();
+            renderReports();
+        }
+
+        function deleteReport(index) {
+            reports.splice(index, 1);
+            renderReports();
+        }
+
+        function logout() { localStorage.removeItem('kis_logged_in'); window.location.href = 'index.html'; }
+        renderReports();
+    </script>
+</body>
+</html>
