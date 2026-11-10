@@ -1,81 +1,121 @@
-# Kiambu Internet Solutions – Network Traffic Monitoring System
+// Replace with your Google Cloud OAuth Client ID when connecting your custom domain
+const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_://googleusercontent.com";
 
-A centralized, web-based network traffic monitoring dashboard designed for **Kiambu Internet Solutions** to replace manual notebook record-keeping with structured device tracking, automated polling logs, downtime alerts, and instant reporting.
+// Initialize default seed data matching Chapter 2 UI Models
+function initStorage() {
+    if (!localStorage.getItem('kis_users')) {
+        const defaultUsers = [
+            { username: 'admin', email: 'admin@kiambuinetsolutions.co.ke', password: 'password123', role: 'Management' },
+            { username: 'permenus', email: 'permenus@kiambuinetsolutions.co.ke', password: 'password123', role: 'Technician' }
+        ];
+        localStorage.setItem('kis_users', JSON.stringify(defaultUsers));
+    }
 
-**Submitted By:** Permenus Nyaga (`DSE-02-0224/2025`)  
-**Institution:** Zetech University – Diploma in Software Engineering
+    if (!localStorage.getItem('kis_devices')) {
+        const defaultDevices = [
+            { id: 1, name: 'Core-Router-1', ip: '192.168.1.1', type: 'Router', status: 'Up', lastPolled: '2 min ago' },
+            { id: 2, name: 'Switch-Floor2', ip: '192.168.1.5', type: 'Switch', status: 'Up', lastPolled: '2 min ago' },
+            { id: 3, name: 'AP-Reception', ip: '192.168.1.20', type: 'Access Point', status: 'Down', lastPolled: '9 min ago' },
+            { id: 4, name: 'Core-Router-2', ip: '192.168.1.2', type: 'Router', status: 'Up', lastPolled: '1 min ago' }
+        ];
+        localStorage.setItem('kis_devices', JSON.stringify(defaultDevices));
+    }
 
----
+    if (!localStorage.getItem('kis_logs')) {
+        const defaultLogs = [
+            { timestamp: '2026-11-09 08:00:01', device: 'Core-Router-1', bytesInMB: 1228.8, bytesOutMB: 819.2, status: 'Normal' },
+            { timestamp: '2026-11-09 08:00:01', device: 'Switch-Floor2', bytesInMB: 450.0, bytesOutMB: 300.0, status: 'Normal' },
+            { timestamp: '2026-11-09 08:00:01', device: 'AP-Reception', bytesInMB: 0, bytesOutMB: 0, status: 'Unreachable' },
+            { timestamp: '2026-11-09 08:05:01', device: 'Core-Router-1', bytesInMB: 1433.6, bytesOutMB: 921.6, status: 'Normal' }
+        ];
+        localStorage.setItem('kis_logs', JSON.stringify(defaultLogs));
+    }
+}
 
-## Live Features
+initStorage();
 
-* **Authentication & Access Control (`index.html`, `register.html`):**
-  * Standard Technician & Management login and self-service staff sign-up.
-  * Integrated **Google Sign-In (OAuth 2.0)** support for one-click authentication.
-  * Animated HTML5 video and canvas network topology background.
-* **Device Dashboard (`dashboard.html`):**
-  * Real-time device status monitoring (`Up` / `Down`) for Routers, Switches, and Access Points.
-  * Automatic **Downtime Alert Banner** highlighting unreachable devices.
-  * Full CRUD device management (Add, Update, Delete device records).
-  * Interactive **Chart.js** bandwidth visualization comparing Bytes In vs. Bytes Out.
-* **Traffic Log & Polling (`traffic-log.html`):**
-  * Timestamped traffic records tracking `Bytes In`, `Bytes Out`, and device reachability.
-  * Live search and filtering by device name, timestamp, or status.
-  * One-click simulated SNMP polling across all registered devices.
-* **Report Generation (`reports.html`):**
-  * Filterable **Traffic Summary** and **Device Status** reports by device and polling period.
-  * Direct **CSV export** and **Print / Save as PDF** support.
+function getUsers() { return JSON.parse(localStorage.getItem('kis_users') || '[]'); }
+function saveUsers(users) { localStorage.setItem('kis_users', JSON.stringify(users)); }
 
----
+function getDevices() { return JSON.parse(localStorage.getItem('kis_devices') || '[]'); }
+function saveDevices(devices) { localStorage.setItem('kis_devices', JSON.stringify(devices)); }
 
-## Project Structure
+function getLogs() { return JSON.parse(localStorage.getItem('kis_logs') || '[]'); }
+function saveLogs(logs) { localStorage.setItem('kis_logs', JSON.stringify(logs)); }
 
-```text
-kiambu-network-monitor/
-├── index.html               # Video/Canvas Login Page + Google Sign-In
-├── register.html            # Staff Account Registration
-├── dashboard.html           # Device Dashboard + Downtime Alerts + Chart.js
-├── traffic-log.html         # Searchable Traffic Log + Poll Trigger
-├── reports.html             # CSV & PDF Report Generator
-├── README.md                # Project Documentation
-└── assets/
-    ├── css/
-    │   └── style.css        # Responsive UI & Glassmorphism Styles
-    ├── js/
-    │   ├── app.js           # Auth, Google OAuth, LocalStorage DB & Polling Logic
-    │   └── network-bg.js    # Animated Network Particle Background
-    ├── img/
-    │   └── login-bg.png     # Fallback Login Poster Image
-    └── video/
-        └── network-bg.mp4   # Optional Looping Background Video
-```
+function getCurrentUser() { return JSON.parse(localStorage.getItem('kis_current_user') || 'null'); }
 
----
+function requireAuth() {
+    const user = getCurrentUser();
+    if (!user) {
+        window.location.href = 'index.html';
+        return null;
+    }
+    const navUser = document.getElementById('nav-username');
+    if (navUser) navUser.textContent = user.username;
+    return user;
+}
 
-## Demo Login Credentials
+function logoutUser() {
+    localStorage.removeItem('kis_current_user');
+    window.location.href = 'index.html';
+}
 
-You can test the application immediately using the pre-seeded accounts or by creating a new account via **Sign Up** / **Continue with Google**:
+function formatMB(mb) {
+    if (mb <= 0) return '0 MB';
+    if (mb >= 1024) return (mb / 1024).toFixed(1) + ' GB';
+    return Math.round(mb) + ' MB';
+}
 
-| Role | Username | Email | Password |
-| :--- | :--- | :--- | :--- |
-| **Management** | `admin` | `admin@kiambuinetsolutions.co.ke` | `password123` |
-| **Technician** | `permenus` | `permenus@kiambuinetsolutions.co.ke` | `password123` |
+// Decode Google JWT Credential on Frontend (GitHub Pages compatible)
+function handleGoogleCredentialResponse(response) {
+    try {
+        const base64Url = response.credential.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const payload = JSON.parse(decodeURIComponent(atob(base64).split('').map(c =>
+            '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+        ).join('')));
 
----
+        const users = getUsers();
+        let existing = users.find(u => u.email === payload.email);
 
-## Deployment (GitHub Pages & Custom Domain)
+        if (!existing) {
+            existing = {
+                username: payload.name || payload.email.split('@')[0],
+                email: payload.email,
+                password: null,
+                role: 'Technician',
+                googleId: payload.sub
+            };
+            users.push(existing);
+            saveUsers(users);
+        }
 
-1. Push all files to the `main` branch of your GitHub repository.
-2. Navigate to **Settings → Pages** in your repository.
-3. Under **Build and deployment**, choose **Deploy from a branch**, select `main` and `/ (root)`, then click **Save**.
-4. *(Optional)* Enter your custom domain under **Custom domain** and configure your DNS `A` / `CNAME` records to point to GitHub Pages.
-5. *(Optional)* To enable live Google OAuth on your domain, create a Web Application **OAuth Client ID** in [Google Cloud Console](https://google.com), add your domain to **Authorized JavaScript origins**, and paste your Client ID into `assets/js/app.js`.
+        localStorage.setItem('kis_current_user', JSON.stringify(existing));
+        window.location.href = 'dashboard.html';
+    } catch (e) {
+        alert('Google Sign-In error: ' + e.message);
+    }
+}
 
----
+// Run Simulated SNMP Poll across all devices
+function runSnmpPoll() {
+    const devices = getDevices();
+    const logs = getLogs();
+    const now = new Date();
+    const ts = now.toISOString().replace('T', ' ').substring(0, 19);
 
-## Technologies Used
+    devices.forEach(dev => {
+        dev.lastPolled = 'Just now';
+        if (dev.status === 'Up') {
+            const inMB = +(Math.random() * 1200 + 250).toFixed(1);
+            const outMB = +(Math.random() * 800 + 150).toFixed(1);
+            logs.unshift({ timestamp: ts, device: dev.name, bytesInMB: inMB, bytesOutMB: outMB, status: 'Normal' });
+        } else {
+            logs.unshift({ timestamp: ts, device: dev.name, bytesInMB: 0, bytesOutMB: 0, status: 'Unreachable' });
+        }
+    });
 
-* **Frontend:** HTML5, CSS3, Vanilla JavaScript (ES6+)
-* **Data Visualization:** Chart.js
-* **Authentication:** Google Identity Services (GSI) & LocalStorage Session Management
-* **Hosting:** GitHub Pages
+    saveDevices(devices);
+    saveLogs(logs);
+}
