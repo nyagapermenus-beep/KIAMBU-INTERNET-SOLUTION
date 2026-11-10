@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Device Management | Kiambu Internet Solutions</title>
   <style>
-    /* Base Reset & Cyberpunk Network Node UI Override */
     :root {
       --bg-dark: #0a0e17;
       --panel-bg: rgba(16, 24, 40, 0.75);
@@ -39,7 +38,6 @@
       min-height: 100vh;
     }
 
-    /* Navigation Layout */
     .topbar {
       display: flex;
       justify-content: space-between;
@@ -90,11 +88,6 @@
       font-size: 13px;
       color: var(--text-muted);
     }
-    
-    .nav-user span {
-      color: var(--text-main);
-      font-weight: 600;
-    }
 
     .logout {
       background: transparent;
@@ -112,7 +105,6 @@
       box-shadow: 0 0 10px rgba(255, 51, 51, 0.3);
     }
 
-    /* Core Architecture Layout */
     .container {
       max-width: 1400px;
       width: 90%;
@@ -156,7 +148,6 @@
       box-shadow: 0 6px 20px rgba(157, 78, 221, 0.4);
     }
 
-    /* Dynamic Topology Visualization Area */
     .topology-panel {
       background: var(--panel-bg);
       border: 1px solid var(--border-cyber);
@@ -164,7 +155,6 @@
       padding: 20px;
       margin-bottom: 25px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-      position: relative;
     }
 
     .topology-panel h3 {
@@ -173,7 +163,6 @@
       font-size: 15px;
       text-transform: uppercase;
       color: var(--accent-cyan);
-      letter-spacing: 0.5px;
     }
 
     #topologyMap {
@@ -184,7 +173,6 @@
       border: 1px solid rgba(255,255,255,0.03);
     }
 
-    /* Panels & Input Fields Modernization */
     .panel {
       background: var(--panel-bg);
       border: 1px solid var(--border-cyber);
@@ -219,7 +207,6 @@
       font-size: 12px;
       text-transform: uppercase;
       color: var(--text-muted);
-      letter-spacing: 0.5px;
     }
 
     .field input, .field select {
@@ -230,12 +217,6 @@
       color: #fff;
       font-size: 14px;
       outline: none;
-      transition: border-color 0.3s, box-shadow 0.3s;
-    }
-
-    .field input:focus, .field select:focus {
-      border-color: var(--accent-cyan);
-      box-shadow: 0 0 10px rgba(0, 210, 255, 0.2);
     }
 
     .form-actions {
@@ -243,7 +224,6 @@
       gap: 12px;
     }
 
-    /* Tables Structures */
     .table-wrap {
       overflow-x: auto;
     }
@@ -262,7 +242,6 @@
       border-bottom: 1px solid rgba(255,255,255,0.08);
       text-transform: uppercase;
       font-size: 12px;
-      letter-spacing: 0.5px;
     }
 
     td {
@@ -271,20 +250,35 @@
       color: var(--text-main);
     }
 
-    tr:hover td {
-      background: rgba(0, 210, 255, 0.02);
+    .badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
     }
 
-    /* Action Trigger Overlays */
-    .auth-message {
-      font-size: 13px;
-      margin-top: 15px;
+    .badge.up { background: rgba(57, 255, 20, 0.15); color: var(--accent-green); }
+    .badge.down { background: rgba(255, 51, 51, 0.15); color: var(--accent-red); }
+
+    .action-btn-danger {
+      background: transparent;
+      border: 1px solid var(--accent-red);
+      color: var(--accent-red);
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+
+    .action-btn-danger:hover {
+      background: rgba(255,51,51,0.15);
     }
   </style>
 </head>
-<body data-auth="required">
+<body>
 <div class="app-shell">
-  
   <header class="topbar">
     <div class="top-brand">KIAMBU <span>INTERNET SOLUTIONS</span></div>
     <nav class="nav">
@@ -293,7 +287,7 @@
       <a class="" href="traffic-log.html">Traffic Logs</a>
       <a class="" href="reports.html">Reports</a>
     </nav>
-    <div class="nav-user"> <span data-username>User</span> · <span data-role>Role</span> <button class="logout" onclick="logoutUser()">Logout</button></div>
+    <div class="nav-user">User <button class="logout" onclick="logoutUser()">Logout</button></div>
   </header>
 
   <main class="container">
@@ -305,76 +299,60 @@
       <button class="btn" onclick="openDeviceForm()">+ Add new device</button>
     </div>
 
-    <!-- AI Network Topology Visualizer Node Box -->
     <div class="topology-panel">
       <h3>🕸️ Topology Node Map</h3>
       <canvas id="topologyMap"></canvas>
     </div>
 
-    <!-- Update Form Panel UI -->
-    <div id="device-form-panel" class="panel" hidden style="margin-bottom:20px">
+    <div id="device-form-panel" class="panel" style="margin-bottom:20px; display:none;">
       <h3>Add or update device</h3>
-      <form id="device-form">
-        <input type="hidden" id="device-id">
+      <form id="device-form" onsubmit="saveDeviceItem(event)">
         <div class="form-grid">
-          <div class="field">
-            <label for="device-name">Device name</label>
-            <input id="device-name" required placeholder="e.g. Core Router">
-          </div>
-          <div class="field">
-            <label for="device-ip">IP address</label>
-            <input id="device-ip" required pattern="^(?:(?:25[0-5]|2[0-4][0-9]|1?[0-9]?[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1?[0-9]?[0-9])$" placeholder="192.168.1.1">
-          </div>
-          <div class="field">
-            <label for="device-type">Device type</label>
-            <select id="device-type">
-              <option>Router</option>
-              <option>Switch</option>
-              <option>Access Point</option>
-              <option>Server</option>
-              <option>Workstation</option>
-              <option>Other</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="device-status">Status</label>
-            <select id="device-status">
-              <option>Up</option>
-              <option>Down</option>
-            </select>
-          </div>
+          <div class="field"><label>Device name</label><input id="device-name" required placeholder="e.g. Core Router"></div>
+          <div class="field"><label>IP address</label><input id="device-ip" required placeholder="192.168.1.1"></div>
+          <div class="field"><label>Device type</label><select id="device-type"><option>Router</option><option>Switch</option><option>Access Point</option><option>Server</option></select></div>
+          <div class="field"><label>Status</label><select id="device-status"><option>Up</option><option>Down</option></select></div>
         </div>
         <div class="form-actions">
           <button class="btn" type="submit">Save device</button>
-          <button class="btn" type="button" onclick="closeDeviceForm()">Cancel</button>
+          <button class="btn" type="button" onclick="closeDeviceForm()" style="background: #333; box-shadow: none;">Cancel</button>
         </div>
-        <p id="device-message" class="auth-message"></p>
       </form>
     </div>
 
-    <!-- Device List Grid Table -->
     <div class="panel">
       <div class="table-wrap">
         <table>
           <thead>
-            <tr>
-              <th>Device name</th>
-              <th>IP address</th>
-              <th>Type</th>
-              <th>Status</th>
-              <th>Last polled</th>
-              <th>Actions</th>
-            </tr>
+            <tr><th>Device name</th><th>IP address</th><th>Type</th><th>Status</th><th>Last polled</th><th>Actions</th></tr>
           </thead>
-          <tbody id="device-rows">
-            <!-- Bound via app.js -->
-          </tbody>
+          <tbody id="device-rows"></tbody>
         </table>
       </div>
     </div>
-    <p id="page-message" class="auth-message"></p>
   </main>
 </div>
 
-<!-- Animated Topology Canvas Script Engine -->
 <script>
+  let devices = JSON.parse(localStorage.getItem("network_devices")) || [
+    { id: 1, name: "Core WAN Gateway", ip: "192.168.1.1", type: "Router", status: "Up", polled: "Just now" },
+    { id: 2, name: "Main HQ Switch", ip: "192.168.1.2", type: "Switch", status: "Up", polled: "2 mins ago" },
+    { id: 3, name: "Data Server 01", ip: "192.168.1.10", type: "Server", status: "Up", polled: "5 mins ago" },
+    { id: 4, name: "Remote Office AP", ip: "192.168.2.5", type: "Access Point", status: "Down", polled: "1 hr ago" }
+  ];
+
+  function renderDeviceTable() {
+    const tbody = document.getElementById("device-rows");
+    tbody.innerHTML = devices.map(d => `
+      <tr>
+        <td><strong>${d.name}</strong></td>
+        <td>${d.ip}</td>
+        <td>${d.type}</td>
+        <td><span class="badge ${d.status.toLowerCase()}">${d.status}</span></td>
+        <td>${d.polled}</td>
+        <td><button class="action-btn-danger" onclick="deleteDeviceItem(${d.id})">Delete</button></td>
+      </tr>
+    `).join('');
+    localStorage.setItem("network_devices", JSON.stringify(devices));
+  }
+
