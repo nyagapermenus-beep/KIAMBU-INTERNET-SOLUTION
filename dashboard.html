@@ -248,12 +248,6 @@
       gap: 8px;
     }
 
-    .panel-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 25px;
-    }
-
     /* Modern Responsive Data Tables */
     .table-wrap {
       overflow-x: auto;
@@ -282,17 +276,6 @@
     tr:hover td {
       background: rgba(0, 210, 255, 0.02);
     }
-
-    /* General status badge stylings */
-    .badge {
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-    }
-    .badge.up { background: rgba(57, 255, 20, 0.15); color: var(--accent-green); }
-    .badge.down { background: rgba(255, 51, 51, 0.15); color: var(--accent-red); }
 
     .muted a {
       color: var(--accent-cyan);
@@ -367,10 +350,23 @@
     
     <!-- KPI Analytics Cards Grid -->
     <div class="stats">
-      <div class="stat"><small>Total devices</small><strong id="total-devices">0</strong><em>Registered devices</em></div>
+      <div class="stat"><small>Total devices</small><strong id="total-devices">0</strong>.../strong><em>Registered devices</em></div>
       <div class="stat"><small>Online devices</small><strong id="online-devices">0</strong><em>Currently marked Up</em></div>
       <div class="stat"><small>Offline devices</small><strong id="offline-devices">0</strong><em>Currently marked Down</em></div>
       <div class="stat"><small>Traffic records</small><strong id="total-logs">0</strong><em>Stored log entries</em></div>
     </div>
 
-    <!-- AI Visualization Layer Inserted dynamically -->
+    <!-- AI Visualization Layer -->
+    <div class="ai-dashboard-row">
+      <section class="panel">
+        <h3>📈 Neural Traffic Trend (24h)</h3>
+        <div style="height: 220px; position: relative;">
+          <canvas id="trafficTrendChart"></canvas>
+        </div>
+      </section>
+      <section class="panel">
+        <h3>🧠 AI Anomaly Detection</h3>
+        <div class="pulse-widget">
+          <div class="radar-circle">
+            <span>SECURE</span>
+          </div>
