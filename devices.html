@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Device Management | Kiambu Internet Solutions</title><link rel="stylesheet" href="css/style.css"></head>
+<body data-auth="required"><div class="app-shell">
+<header class="topbar">
+  <div class="top-brand">KIAMBU <span>INTERNET SOLUTIONS</span></div>
+  <nav class="nav">
+    <a class="" href="dashboard.html">Dashboard</a>
+    <a class="active" href="devices.html">Device Management</a>
+    <a class="" href="traffic-log.html">Traffic Logs</a>
+    <a class="" href="reports.html">Reports</a>
+  </nav>
+  <div class="nav-user"> <span data-username>User</span> · <span data-role>Role</span> <button class="logout" onclick="logoutUser()">Logout</button></div>
+</header>
+<main class="container">
+<div class="page-heading"><div><h1>Device Management</h1><p>Add, update, view and remove monitored network devices.</p></div><button class="btn" onclick="openDeviceForm()">+ Add new device</button></div>
+<div id="device-form-panel" class="panel" hidden style="margin-bottom:20px">
+<h3>Add or update device</h3><form id="device-form"><input type="hidden" id="device-id">
+<div class="form-grid">
+<div class="field"><label for="device-name">Device name</label><input id="device-name" required placeholder="e.g. Core Router"></div>
+<div class="field"><label for="device-ip">IP address</label><input id="device-ip" required pattern="^(?:(?:25[0-5]|2[0-4][0-9]|1?[0-9]?[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1?[0-9]?[0-9])$" placeholder="192.168.1.1"></div>
+<div class="field"><label for="device-type">Device type</label><select id="device-type"><option>Router</option><option>Switch</option><option>Access Point</option><option>Server</option><option>Workstation</option><option>Other</option></select></div>
+<div class="field"><label for="device-status">Status</label><select id="device-status"><option>Up</option><option>Down</option></select></div>
+</div><div class="form-actions"><button class="btn" type="submit">Save device</button><button class="btn" type="button" onclick="closeDeviceForm()">Cancel</button></div><p id="device-message" class="auth-message"></p></form></div>
+<div class="panel"><div class="table-wrap"><table><thead><tr><th>Device name</th><th>IP address</th><th>Type</th><th>Status</th><th>Last polled</th><th>Actions</th></tr></thead><tbody id="device-rows"></tbody></table></div></div><p id="page-message" class="auth-message"></p>
+</main></div>
+<script src="js/app.js"></script></body></html>
