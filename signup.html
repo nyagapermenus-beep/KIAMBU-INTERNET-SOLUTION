@@ -1,18 +1,348 @@
+
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Create Account | Kiambu Internet Solutions</title><link rel="stylesheet" href="css/style.css"></head>
-<body><div class="background"></div><div class="grid-bg"></div>
-<main class="auth-wrap">
-<section class="brand-panel"><div class="brand"><div class="brand-mark">⌘</div><div><h2>KIAMBU INTERNET</h2><small>SOLUTIONS</small></div></div>
-<div class="eyebrow">NETWORK INTELLIGENCE PLATFORM</div><h1>Create your<br><span>account.</span></h1>
-<p>Register for access to the Network Traffic Monitoring System. Your selected role is stored with this demonstration account.</p></section>
-<section class="auth-card"><div class="auth-heading"><small>NEW ACCOUNT</small><h2>Get started</h2><p>Enter your details to create an account.</p></div>
-<form id="signup-form">
-<div class="field"><label for="username">Username</label><input id="username" required minlength="3" placeholder="Choose a username"></div>
-<div class="field"><label for="email">Email address</label><input id="email" type="email" required placeholder="name@example.com"></div>
-<div class="field"><label for="role">Account role</label><select id="role"><option>Technician</option><option>Management</option></select></div>
-<div class="field"><label for="password">Password</label><input id="password" type="password" required minlength="6" placeholder="At least 6 characters"></div>
-<div class="field"><label for="confirm-password">Confirm password</label><input id="confirm-password" type="password" required placeholder="Re-enter your password"></div>
-<button class="primary-btn" type="submit">CREATE ACCOUNT →</button><div class="auth-message" id="auth-message"></div></form>
-<div class="auth-switch">Already registered? <a href="index.html">Sign in</a></div><div class="auth-footer">◈ &nbsp; Account registration</div></section>
-</main><script src="js/app.js"></script></body></html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Account | Kiambu Internet Solutions</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+    min-height:100vh;
+    font-family:Arial,sans-serif;
+    background:#061326;
+    color:#f5f9ff;
+}
+
+.background{
+    position:fixed;
+    inset:0;
+    z-index:-2;
+    background:
+    linear-gradient(90deg,rgba(3,10,24,.93),rgba(3,13,29,.65),rgba(3,10,24,.9)),
+    url("assets/network-login.png") center/cover no-repeat;
+}
+
+.overlay{
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    background:
+    linear-gradient(rgba(0,210,255,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,210,255,.025) 1px,transparent 1px);
+    background-size:40px 40px;
+}
+
+.container{
+    min-height:100vh;
+    max-width:1150px;
+    margin:auto;
+    padding:35px;
+    display:grid;
+    grid-template-columns:1fr 440px;
+    gap:50px;
+    align-items:center;
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:13px;
+    margin-bottom:55px;
+}
+
+.logo{
+    width:48px;
+    height:48px;
+    display:grid;
+    place-items:center;
+    border:1px solid #00d2ff;
+    border-radius:12px;
+    color:#00d2ff;
+    font-size:25px;
+}
+
+.brand h2{font-size:16px;letter-spacing:2px}
+.brand small{color:#00d2ff;letter-spacing:3px}
+
+.eyebrow{
+    color:#00d2ff;
+    font-size:11px;
+    font-weight:bold;
+    letter-spacing:3px;
+    margin-bottom:20px;
+}
+
+.intro h1{
+    font-size:clamp(38px,5vw,60px);
+    line-height:1.15;
+    margin-bottom:20px;
+}
+
+.intro h1 span{color:#00d2ff}
+
+.intro p{
+    max-width:480px;
+    color:#b5c6d9;
+    font-size:14px;
+    line-height:1.8;
+}
+
+.card{
+    background:rgba(9,26,46,.95);
+    border:1px solid rgba(130,180,220,.25);
+    border-radius:20px;
+    padding:38px;
+    box-shadow:0 25px 80px rgba(0,0,0,.55);
+    backdrop-filter:blur(15px);
+}
+
+.heading small{
+    color:#00d2ff;
+    font-size:10px;
+    font-weight:bold;
+    letter-spacing:2px;
+}
+
+.heading h2{
+    font-size:28px;
+    margin:13px 0 8px;
+}
+
+.heading p{
+    color:#9aadc3;
+    font-size:13px;
+    margin-bottom:25px;
+}
+
+.field{margin-bottom:17px}
+
+.field label{
+    display:block;
+    font-size:12px;
+    font-weight:bold;
+    margin-bottom:8px;
+}
+
+.field input,.field select{
+    width:100%;
+    padding:13px;
+    border:1px solid #29445f;
+    border-radius:8px;
+    background:#07182b;
+    color:white;
+    outline:none;
+}
+
+.field input:focus,.field select:focus{
+    border-color:#00d2ff;
+    box-shadow:0 0 0 3px rgba(0,210,255,.1);
+}
+
+.field select option{
+    background:#10243b;
+    color:white;
+}
+
+.submit{
+    width:100%;
+    padding:15px;
+    border:0;
+    border-radius:8px;
+    background:linear-gradient(100deg,#087cf0,#00c9ed);
+    color:#041426;
+    font-weight:bold;
+    cursor:pointer;
+    margin-top:5px;
+}
+
+.submit:hover{filter:brightness(1.1)}
+
+.message{
+    min-height:20px;
+    text-align:center;
+    font-size:12px;
+    margin-top:13px;
+    color:#ff9999;
+}
+
+.switch{
+    text-align:center;
+    color:#9aadc3;
+    font-size:12px;
+    margin-top:22px;
+}
+
+.switch a{
+    color:#00d2ff;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+.footer{
+    border-top:1px solid #29445f;
+    margin-top:23px;
+    padding-top:17px;
+    text-align:center;
+    font-size:10px;
+    color:#7890aa;
+}
+
+@media(max-width:850px){
+    .container{
+        grid-template-columns:1fr;
+        max-width:520px;
+        gap:25px;
+        padding:25px 18px;
+    }
+
+    .intro{text-align:center}
+    .brand{justify-content:center;margin-bottom:20px}
+    .intro h1{font-size:36px}
+    .intro p{display:none}
+    .card{padding:28px 22px}
+}
+</style>
+</head>
+
+<body>
+<div class="background"></div>
+<div class="overlay"></div>
+
+<main class="container">
+
+<section class="intro">
+    <div class="brand">
+        <div class="logo">⌘</div>
+        <div>
+            <h2>KIAMBU INTERNET</h2>
+            <small>SOLUTIONS</small>
+        </div>
+    </div>
+
+    <div class="eyebrow">NETWORK INTELLIGENCE PLATFORM</div>
+
+    <h1>Create your<br><span>account.</span></h1>
+
+    <p>
+        Register to access the Kiambu Internet Solutions
+        Network Traffic Monitoring System. Manage devices,
+        review network activity and access reports.
+    </p>
+</section>
+
+<section class="card">
+
+    <div class="heading">
+        <small>NEW ACCOUNT</small>
+        <h2>Get started</h2>
+        <p>Enter your details to create your account.</p>
+    </div>
+
+    <form id="signup-form">
+
+        <div class="field">
+            <label for="username">Username</label>
+            <input id="username" type="text"
+                   placeholder="Choose a username"
+                   minlength="3" required>
+        </div>
+
+        <div class="field">
+            <label for="email">Email address</label>
+            <input id="email" type="email"
+                   placeholder="Enter your email address"
+                   required>
+        </div>
+
+        <div class="field">
+            <label for="role">Account role</label>
+            <select id="role" required>
+                <option value="Technician">Technician</option>
+                <option value="Management">Management</option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label for="password">Password</label>
+            <input id="password" type="password"
+                   placeholder="At least 6 characters"
+                   minlength="6" required>
+        </div>
+
+        <div class="field">
+            <label for="confirm-password">Confirm password</label>
+            <input id="confirm-password" type="password"
+                   placeholder="Re-enter your password"
+                   required>
+        </div>
+
+        <button class="submit" type="submit">
+            CREATE ACCOUNT →
+        </button>
+
+        <div class="message" id="auth-message"></div>
+
+    </form>
+
+    <div class="switch">
+        Already have an account?
+        <a href="index.html">Sign in</a>
+    </div>
+
+    <div class="footer">
+        ◈ &nbsp; Account Registration
+    </div>
+
+</section>
+</main>
+
+<script>
+document.getElementById("signup-form").addEventListener("submit",function(e){
+    e.preventDefault();
+
+    const username=document.getElementById("username").value.trim();
+    const email=document.getElementById("email").value.trim().toLowerCase();
+    const role=document.getElementById("role").value;
+    const password=document.getElementById("password").value;
+    const confirm=document.getElementById("confirm-password").value;
+    const message=document.getElementById("auth-message");
+
+    const users=JSON.parse(localStorage.getItem("kis_users")||"[]");
+
+    if(password.length<6){
+        message.textContent="Password must contain at least 6 characters.";
+        return;
+    }
+
+    if(password!==confirm){
+        message.textContent="Passwords do not match.";
+        return;
+    }
+
+    if(users.some(u=>(u.email||"").toLowerCase()===email)){
+        message.textContent="This email address is already registered.";
+        return;
+    }
+
+    if(users.some(u=>(u.username||"").toLowerCase()===username.toLowerCase())){
+        message.textContent="This username is already taken.";
+        return;
+    }
+
+    users.push({username,email,password,role});
+    localStorage.setItem("kis_users",JSON.stringify(users));
+
+    message.style.color="#54e0a1";
+    message.textContent="Account created successfully! Redirecting to sign in...";
+
+    setTimeout(function(){
+        window.location.href="index.html";
+    },1200);
+});
+</script>
+
+</body>
+</html>
