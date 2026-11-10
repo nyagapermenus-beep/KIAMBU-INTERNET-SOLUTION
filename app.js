@@ -1,12 +1,43 @@
 // ==========================================
-// KIAMBU INTERNET SOLUTIONS - APP.JS ENGINE
+// KIAMBU INTERNET SOLUTIONS - MASTER APP.JS
 // ==========================================
 
 document.addEventListener("DOMContentLoaded", function () {
-    // Initializer check for dynamic rows / storage setup
     initializeDemoData();
     renderDeviceTable();
     renderLogs();
+
+    // GLOBAL CLICK INTERCEPTOR (Guarantees buttons work even if HTML bindings fail)
+    document.addEventListener("click", function (event) {
+        const target = event.target;
+        const text = target.textContent.trim().toLowerCase();
+
+        if (target.classList.contains("logout") || text === "logout") {
+            event.preventDefault();
+            logoutUser();
+        } else if (text.includes("add new device")) {
+            event.preventDefault();
+            openDeviceForm();
+        } else if (text.includes("export traffic csv")) {
+            event.preventDefault();
+            downloadCSV();
+        } else if (text.includes("print / save pdf")) {
+            event.preventDefault();
+            printReport();
+        } else if (text.includes("run demo poll")) {
+            event.preventDefault();
+            runSnmpPoll();
+        }
+    });
+
+    // Form submit listener
+    const deviceForm = document.getElementById("device-form");
+    if (deviceForm) {
+        deviceForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            saveDevice();
+        });
+    }
 });
 
 // 1. Device Form Modal Controls
@@ -66,7 +97,7 @@ function printReport() {
     window.print();
 }
 
-// 5. Secure Logout Handler (Directly clears cache & redirects)
+// 5. Secure Logout Handler
 function logoutUser() {
     localStorage.clear();
     sessionStorage.clear();
@@ -104,7 +135,6 @@ function renderDeviceTable() {
         tbody.appendChild(tr);
     });
 
-    // Update stats counters if elements exist
     const totalEl = document.getElementById("total-devices");
     const onlineEl = document.getElementById("online-devices");
     if (totalEl) totalEl.textContent = devices.length;
@@ -121,6 +151,20 @@ function renderLogs() {
     `;
     const totalLogsEl = document.getElementById("total-logs");
     if (totalLogsEl) totalLogsEl.textContent = "2";
+}
+
+function saveDevice() {
+    const name = document.getElementById("device-name").value;
+    const ip = document.getElementById("device-ip").value;
+    const type = document.getElementById("device-type").value;
+    const status = document.getElementById("device-status").value;
+
+    let devices = JSON.parse(localStorage.getItem("devices")) || [];
+    devices.push({ id: Date.now(), name, ip, type, status, polled: "Just now" });
+    localStorage.setItem("devices", JSON.stringify(devices));
+
+    closeDeviceForm();
+    renderDeviceTable();
 }
 
 function deleteDevice(id) {
