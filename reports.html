@@ -92,11 +92,6 @@
       font-size: 13px;
       color: var(--text-muted);
     }
-    
-    .nav-user span {
-      color: var(--text-main);
-      font-weight: 600;
-    }
 
     .logout {
       background: transparent;
@@ -163,16 +158,6 @@
       box-shadow: 0 6px 20px rgba(157, 78, 221, 0.4);
     }
 
-    .notice {
-      background: rgba(157, 78, 221, 0.06);
-      border-left: 4px solid var(--accent-purple);
-      padding: 12px 20px;
-      border-radius: 0 8px 8px 0;
-      font-size: 13px;
-      color: #dfd4ff;
-      margin-bottom: 30px;
-    }
-
     /* Modular Reports Row Layout Grid */
     .reports-charts-row {
       display: grid;
@@ -199,10 +184,6 @@
       letter-spacing: 0.5px;
     }
 
-    #report-summary {
-      margin-bottom: 25px;
-    }
-
     /* High Density Content Grid View */
     .table-wrap {
       overflow-x: auto;
@@ -220,7 +201,6 @@
       font-weight: 600;
       padding: 12px 10px;
       border-bottom: 1px solid rgba(255,255,255,0.08);
-      font-size: 12px;
       text-transform: uppercase;
     }
 
@@ -238,15 +218,31 @@
       background: rgba(0, 210, 255, 0.02);
     }
 
-    /* Print Formatting Rules */
+    /* Professional Print Formatting Rules */
     @media print {
-      body { background: #fff; color: #000; }
-      .topbar, .btn, .notice { display: none !important; }
-      .panel { border: 1px solid #ccc; background: #fff; color: #000; box-shadow: none; }
+      body { 
+        background: #fff !important; 
+        color: #000 !important; 
+        background-image: none !important;
+      }
+      .topbar, .form-actions, .btn, p { 
+        display: none !important; 
+      }
+      .panel { 
+        border: 1px solid #ccc !important; 
+        background: #fff !important; 
+        color: #000 !important; 
+        box-shadow: none !important; 
+        margin-bottom: 20px !important;
+      }
+      td, th {
+        color: #000 !important;
+        border-bottom: 1px solid #ccc !important;
+      }
     }
   </style>
 </head>
-<body data-auth="required">
+<body>
 <div class="app-shell">
   
   <header class="topbar">
@@ -257,7 +253,7 @@
       <a class="" href="traffic-log.html">Traffic Logs</a>
       <a class="active" href="reports.html">Reports</a>
     </nav>
-    <div class="nav-user"> <span data-username>User</span> · <span data-role>Role</span> <button class="logout" onclick="logoutUser()">Logout</button></div>
+    <div class="nav-user">User <button class="logout" onclick="logoutUser()">Logout</button></div>
   </header>
 
   <main class="container">
@@ -267,14 +263,10 @@
         <p>Generate a summary of device status and recorded traffic activity.</p>
       </div>
       <div class="form-actions">
-        <button class="btn" onclick="downloadCSV()">↓ Export traffic CSV</button>
-        <button class="btn" onclick="printReport()">Print / Save PDF</button>
+        <button class="btn" onclick="exportTrafficCSVLocal()">↓ Export traffic CSV</button>
+        <button class="btn" onclick="printReportLocal()">Print / Save PDF</button>
       </div>
     </div>
-    
-    <div class="notice">Reports reflect the demonstration records stored in this browser. Use the CSV export for spreadsheet analysis.</div>
-    
-    <div id="report-summary"></div>
 
     <!-- Analytics Dashboard Charts Layer -->
     <div class="reports-charts-row">
@@ -307,9 +299,7 @@
               <th>Status</th>
             </tr>
           </thead>
-          <tbody id="log-rows">
-            <!-- Bound via app.js context loops -->
-          </tbody>
+          <tbody id="report-rows"></tbody>
         </table>
       </div>
     </div>
@@ -318,7 +308,25 @@
 
 <!-- Render Data Engine Layout Configs -->
 <script>
+  const reportRecords = [
+    { time: "2026-11-10 23:44:11", name: "Core WAN Gateway", in: "45210400", out: "125400210", status: "Success" },
+    { time: "2026-11-10 23:42:45", name: "Main HQ Switch", in: "12450110", out: "8450200", status: "Success" },
+    { time: "2026-11-10 23:39:14", name: "Data Server 01", in: "845100560", out: "1940210440", status: "Success" }
+  ];
+
   document.addEventListener("DOMContentLoaded", function () {
+    // Populate the table directly
+    document.getElementById("report-rows").innerHTML = reportRecords.map(r => `
+      <tr>
+        <td>${r.time}</td>
+        <td><strong>${r.name}</strong></td>
+        <td>${Number(r.in).toLocaleString()} bytes</td>
+        <td>${Number(r.out).toLocaleString()} bytes</td>
+        <td style="color: #39ff14">${r.status}</td>
+      </tr>
+    `).join('');
+
+    // Protocol Ring Distribution Rendering
     const ctxDistribution = document.getElementById('protocolDistributionChart').getContext('2d');
     new Chart(ctxDistribution, {
       type: 'doughnut',
@@ -340,6 +348,7 @@
       }
     });
 
+    // Horizontal Consumption Chart Rendering
     const ctxConsumers = document.getElementById('bandwidthConsumersChart').getContext('2d');
     new Chart(ctxConsumers, {
       type: 'bar',
@@ -355,18 +364,3 @@
       },
       options: {
         indexAxis: 'y',
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { grid: { color: 'rgba(255, 255, 255, 0.03)' }, ticks: { color: '#8a99ad', font: { size: 10 } } },
-          y: { grid: { display: false }, ticks: { color: '#8a99ad', font: { size: 11 } } }
-        }
-      }
-    });
-  });
-
-  // Dedicated Logout Core Engine Override
-  function logoutUser() {
-    localStorage.clear();
-    sessionStorage.clear();
