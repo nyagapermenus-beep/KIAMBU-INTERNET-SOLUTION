@@ -1,21 +1,366 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Reports | Kiambu Internet Solutions</title><link rel="stylesheet" href="css/style.css"></head>
-<body data-auth="required"><div class="app-shell">
-<header class="topbar">
-  <div class="top-brand">KIAMBU <span>INTERNET SOLUTIONS</span></div>
-  <nav class="nav">
-    <a class="" href="dashboard.html">Dashboard</a>
-    <a class="" href="devices.html">Device Management</a>
-    <a class="" href="traffic-log.html">Traffic Logs</a>
-    <a class="active" href="reports.html">Reports</a>
-  </nav>
-  <div class="nav-user"> <span data-username>User</span> · <span data-role>Role</span> <button class="logout" onclick="logoutUser()">Logout</button></div>
-</header>
-<main class="container">
-<div class="page-heading"><div><h1>Reports & Exports</h1><p>Generate a summary of device status and recorded traffic activity.</p></div><div class="form-actions"><button class="btn" onclick="downloadCSV()">↓ Export traffic CSV</button><button class="btn" onclick="printReport()">Print / Save PDF</button></div></div>
-<div class="notice">Reports reflect the demonstration records stored in this browser. Use the CSV export for spreadsheet analysis.</div>
-<div id="report-summary"></div>
-<div class="panel"><h3>Recent traffic records</h3><div class="table-wrap"><table><thead><tr><th>Timestamp</th><th>Device</th><th>Traffic in</th><th>Traffic out</th><th>Status</th></tr></thead><tbody id="log-rows"></tbody></table></div></div>
-</main></div>
-<script src="js/app.js"></script></body></html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports | Kiambu Internet Solutions</title>
+  <!-- Chart.js CDN for historical analytics mapping -->
+  <script src="https://jsdelivr.net"></script>
+  <style>
+    /* Base Reset & Cyberpunk Analytics Theme Override */
+    :root {
+      --bg-dark: #0a0e17;
+      --panel-bg: rgba(16, 24, 40, 0.75);
+      --accent-cyan: #00d2ff;
+      --accent-purple: #9d4edd;
+      --accent-green: #39ff14;
+      --accent-red: #ff3333;
+      --text-main: #f0f4f8;
+      --text-muted: #8a99ad;
+      --border-cyber: rgba(0, 210, 255, 0.15);
+      --terminal-font: 'Courier New', Courier, monospace;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 50% 0%, rgba(157, 78, 221, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(0, 210, 255, 0.12) 0px, transparent 50%),
+        linear-gradient(rgba(18, 18, 18, 0.4) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(18, 18, 18, 0.4) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      color: var(--text-main);
+    }
+
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Navigation Header */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10, 14, 23, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-cyber);
+      padding: 15px 40px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .top-brand {
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      color: var(--text-main);
+      font-size: 18px;
+    }
+
+    .top-brand span {
+      color: var(--accent-cyan);
+      font-weight: 300;
+    }
+
+    .nav {
+      display: flex;
+      gap: 10px;
+    }
+
+    .nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      border: 1px solid transparent;
+    }
+
+    .nav a:hover, .nav a.active {
+      color: var(--accent-cyan);
+      background: rgba(0, 210, 255, 0.08);
+      border-color: rgba(0, 210, 255, 0.3);
+      text-shadow: 0 0 8px rgba(0, 210, 255, 0.5);
+    }
+
+    .nav-user {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    
+    .nav-user span {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .logout {
+      background: transparent;
+      border: 1px solid var(--accent-red);
+      color: var(--accent-red);
+      padding: 5px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-left: 10px;
+      transition: all 0.3s;
+    }
+
+    .logout:hover {
+      background: rgba(255, 51, 51, 0.15);
+      box-shadow: 0 0 10px rgba(255, 51, 51, 0.3);
+    }
+
+    /* Main Container Content */
+    .container {
+      max-width: 1400px;
+      width: 90%;
+      margin: 30px auto;
+      flex-grow: 1;
+    }
+
+    .page-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    .page-heading h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .page-heading p {
+      margin: 5px 0 0 0;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+      border: none;
+      color: #fff;
+      padding: 10px 20px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(157, 78, 221, 0.4);
+    }
+
+    .notice {
+      background: rgba(157, 78, 221, 0.06);
+      border-left: 4px solid var(--accent-purple);
+      padding: 12px 20px;
+      border-radius: 0 8px 8px 0;
+      font-size: 13px;
+      color: #dfd4ff;
+      margin-bottom: 30px;
+    }
+
+    /* Modular Reports Row Layout Grid */
+    .reports-charts-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    .panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--border-cyber);
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(8px);
+    }
+
+    .panel h3 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      font-size: 15px;
+      text-transform: uppercase;
+      color: var(--accent-cyan);
+      letter-spacing: 0.5px;
+    }
+
+    /* Summary Target Container Overwrite */
+    #report-summary {
+      margin-bottom: 25px;
+    }
+
+    /* High Density Content Grid View */
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 12px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    td {
+      padding: 14px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      color: var(--text-main);
+    }
+
+    td:nth-child(1), td:nth-child(3), td:nth-child(4) {
+      font-family: var(--terminal-font);
+    }
+
+    tr:hover td {
+      background: rgba(0, 210, 255, 0.02);
+    }
+
+    /* Print Formatting Rules */
+    @media print {
+      body { background: #fff; color: #000; }
+      .topbar, .btn, .notice { display: none !important; }
+      .panel { border: 1px solid #ccc; background: #fff; color: #000; box-shadow: none; }
+    }
+  </style>
+</head>
+<body data-auth="required">
+<div class="app-shell">
+  
+  <header class="topbar">
+    <div class="top-brand">KIAMBU <span>INTERNET SOLUTIONS</span></div>
+    <nav class="nav">
+      <a class="" href="dashboard.html">Dashboard</a>
+      <a class="" href="devices.html">Device Management</a>
+      <a class="" href="traffic-log.html">Traffic Logs</a>
+      <a class="active" href="reports.html">Reports</a>
+    </nav>
+    <div class="nav-user"> <span data-username>User</span> · <span data-role>Role</span> <button class="logout" onclick="logoutUser()">Logout</button></div>
+  </header>
+
+  <main class="container">
+    <div class="page-heading">
+      <div>
+        <h1>Reports & Exports</h1>
+        <p>Generate a summary of device status and recorded traffic activity.</p>
+      </div>
+      <div class="form-actions">
+        <button class="btn" onclick="downloadCSV()">↓ Export traffic CSV</button>
+        <button class="btn" onclick="printReport()">Print / Save PDF</button>
+      </div>
+    </div>
+    
+    <div class="notice">Reports reflect the demonstration records stored in this browser. Use the CSV export for spreadsheet analysis.</div>
+    
+    <!-- Injection Hook Point for dynamic js strings -->
+    <div id="report-summary"></div>
+
+    <!-- Analytics Dashboard Charts Layer -->
+    <div class="reports-charts-row">
+      <div class="panel">
+        <h3>📊 Protocol Distribution</h3>
+        <div style="height: 200px; position: relative; display: flex; justify-content: center;">
+          <canvas id="protocolDistributionChart"></canvas>
+        </div>
+      </div>
+      
+      <div class="panel">
+        <h3>⚡ Top Bandwidth Consumers</h3>
+        <div style="height: 200px; position: relative;">
+          <canvas id="bandwidthConsumersChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabular Historic Index Logs -->
+    <div class="panel">
+      <h3>Recent traffic records</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Device</th>
+              <th>Traffic in</th>
+              <th>Traffic out</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="log-rows">
+            <!-- Bound via app.js context loops -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Render Data Engine Layout Configs -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Protocol Ring Distribution Rendering
+    const ctxDistribution = document.getElementById('protocolDistributionChart').getContext('2d');
+    new Chart(ctxDistribution, {
+      type: 'doughnut',
+      data: {
+        labels: ['HTTPS', 'SNMP', 'TCP Logs', 'UDP Query'],
+        datasets: [{
+          data:,
+          backgroundColor: ['#00d2ff', '#9d4edd', '#39ff14', '#ff3333'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'right', labels: { color: '#8a99ad', font: { size: 11 } } }
+        },
+        cutout: '70%'
+      }
+    });
+
+    // Horizontal Consumption Chart Rendering
+    const ctxConsumers = document.getElementById('bandwidthConsumersChart').getContext('2d');
+    new Chart(ctxConsumers, {
+      type: 'bar',
+      data: {
+        labels: ['Core Router', 'Server 01', 'HQ Switch', 'Office AP'],
+        datasets: [{
+          data:,
+          backgroundColor: 'rgba(0, 210, 255, 0.75)',
+          borderColor: '#00d2ff',
+          borderWidth: 1,
+          borderRadius: 4
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: 'rgba(255, 255, 255, 0.03)' }, ticks: { color: '#8a99ad', font: { size: 10 } } },
