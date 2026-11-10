@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Traffic Logs | Kiambu Internet Solutions</title>
+  <title>Reports | Kiambu Internet Solutions</title>
+  <script src="https://jsdelivr.net"></script>
   <style>
-    /* Base Reset & Cyberpunk Command Center Terminal UI */
     :root {
       --bg-dark: #0a0e17;
       --panel-bg: rgba(16, 24, 40, 0.75);
@@ -16,296 +16,134 @@
       --text-main: #f0f4f8;
       --text-muted: #8a99ad;
       --border-cyber: rgba(0, 210, 255, 0.15);
-      --input-bg: rgba(10, 14, 23, 0.6);
       --terminal-font: 'Courier New', Courier, monospace;
     }
-
     body {
-      margin: 0;
-      padding: 0;
-      background-color: var(--bg-dark);
+      margin: 0; padding: 0; background-color: var(--bg-dark);
       background-image: 
-        radial-gradient(at 0% 0%, rgba(0, 210, 255, 0.12) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(157, 78, 221, 0.12) 0px, transparent 50%),
+        radial-gradient(at 50% 0%, rgba(157, 78, 221, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(0, 210, 255, 0.12) 0px, transparent 50%),
         linear-gradient(rgba(18, 18, 18, 0.4) 1px, transparent 1px),
         linear-gradient(90deg, rgba(18, 18, 18, 0.4) 1px, transparent 1px);
       background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px;
       font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
       color: var(--text-main);
     }
-
-    .app-shell {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-
-    /* Core Navigation Layout */
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(10, 14, 23, 0.85);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border-cyber);
-      padding: 15px 40px;
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-    }
-
-    .top-brand {
-      font-weight: 800;
-      letter-spacing: 1.5px;
-      color: var(--text-main);
-      font-size: 18px;
-    }
-
-    .top-brand span {
-      color: var(--accent-cyan);
-      font-weight: 300;
-    }
-
-    .nav {
-      display: flex;
-      gap: 10px;
-    }
-
-    .nav a {
-      color: var(--text-muted);
-      text-decoration: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      border: 1px solid transparent;
-    }
-
-    .nav a:hover, .nav a.active {
-      color: var(--accent-cyan);
-      background: rgba(0, 210, 255, 0.08);
-      border-color: rgba(0, 210, 255, 0.3);
-      text-shadow: 0 0 8px rgba(0, 210, 255, 0.5);
-    }
-
-    .nav-user {
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-    
-    .nav-user span {
-      color: var(--text-main);
-      font-weight: 600;
-    }
-
-    .logout {
-      background: transparent;
-      border: 1px solid var(--accent-red);
-      color: var(--accent-red);
-      padding: 5px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-left: 10px;
-      transition: all 0.3s;
-    }
-
-    .logout:hover {
-      background: rgba(255, 51, 51, 0.15);
-      box-shadow: 0 0 10px rgba(255, 51, 51, 0.3);
-    }
-
-    /* Primary Data Layout Container */
-    .container {
-      max-width: 1400px;
-      width: 90%;
-      margin: 30px auto;
-      flex-grow: 1;
-    }
-
-    .page-heading {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 25px;
-    }
-
-    .page-heading h1 {
-      margin: 0;
-      font-size: 28px;
-      font-weight: 700;
-    }
-
-    .page-heading p {
-      margin: 5px 0 0 0;
-      color: var(--text-muted);
-      font-size: 14px;
-    }
-
-    .btn {
-      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-      border: none;
-      color: #fff;
-      padding: 10px 20px;
-      font-weight: 600;
-      border-radius: 6px;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(157, 78, 221, 0.4);
-    }
-
-    .notice {
-      background: rgba(0, 210, 255, 0.06);
-      border-left: 4px solid var(--accent-cyan);
-      padding: 12px 20px;
-      border-radius: 0 8px 8px 0;
-      font-size: 13px;
-      color: #b2ebff;
-      margin-bottom: 30px;
-    }
-
-    /* Terminal Console Box & Filter Toolbar */
-    .panel {
-      background: var(--panel-bg);
-      border: 1px solid var(--border-cyber);
-      border-radius: 12px;
-      padding: 25px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-      backdrop-filter: blur(8px);
-    }
-
-    .toolbar {
-      margin-bottom: 20px;
-      display: flex;
-      width: 100%;
-    }
-
-    #log-search {
-      width: 100%;
-      background: var(--input-bg);
-      border: 1px solid rgba(0, 210, 255, 0.25);
-      border-radius: 6px;
-      padding: 12px 16px;
-      color: #fff;
-      font-size: 14px;
-      outline: none;
-      transition: all 0.3s;
-    }
-
-    #log-search:focus {
-      border-color: var(--accent-cyan);
-      box-shadow: 0 0 12px rgba(0, 210, 255, 0.25);
-    }
-
-    /* High-density Dense Log Data Table Grid */
-    .table-wrap {
-      overflow-x: auto;
-      border-radius: 6px;
-      background: rgba(10, 14, 23, 0.4);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-    }
-
-    th {
-      color: var(--text-muted);
-      font-weight: 600;
-      padding: 14px 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    td {
-      padding: 12px 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.03);
-      color: var(--text-main);
-      font-size: 13px;
-    }
-
-    td:nth-child(1), td:nth-child(3), td:nth-child(4) {
-      font-family: var(--terminal-font);
-      letter-spacing: -0.3px;
-    }
-
-    tr:hover td {
-      background: rgba(0, 210, 255, 0.03);
-    }
-
-    .auth-message {
-      font-size: 13px;
-      margin-top: 15px;
+    .app-shell { display: flex; flex-direction: column; min-height: 100vh; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; background: rgba(10, 14, 23, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-cyber); padding: 15px 40px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); }
+    .top-brand { font-weight: 800; letter-spacing: 1.5px; color: var(--text-main); font-size: 18px; }
+    .top-brand span { color: var(--accent-cyan); font-weight: 300; }
+    .nav { display: flex; gap: 10px; }
+    .nav a { color: var(--text-muted); text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 500; transition: all 0.3s ease; border: 1px solid transparent; }
+    .nav a:hover, .nav a.active { color: var(--accent-cyan); background: rgba(0, 210, 255, 0.08); border-color: rgba(0, 210, 255, 0.3); text-shadow: 0 0 8px rgba(0, 210, 255, 0.5); }
+    .nav-user { font-size: 13px; color: var(--text-muted); }
+    .logout { background: transparent; border: 1px solid var(--accent-red); color: var(--accent-red); padding: 5px 12px; border-radius: 4px; cursor: pointer; margin-left: 10px; }
+    .container { max-width: 1400px; width: 90%; margin: 30px auto; flex-grow: 1; }
+    .page-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .page-heading h1 { margin: 0; font-size: 28px; font-weight: 700; }
+    .form-actions { display: flex; gap: 12px; }
+    .btn { background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); border: none; color: #fff; padding: 10px 20px; font-weight: 600; border-radius: 6px; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3); }
+    .reports-charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 30px; }
+    .panel { background: var(--panel-bg); border: 1px solid var(--border-cyber); border-radius: 12px; padding: 25px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); backdrop-filter: blur(8px); }
+    .panel h3 { margin-top: 0; margin-bottom: 20px; font-size: 15px; text-transform: uppercase; color: var(--accent-cyan); }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { color: var(--text-muted); font-weight: 600; padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    td { padding: 14px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-main); }
+    @media print {
+      body { background: #fff; color: #000; background-image: none; }
+      .topbar, .form-actions, .btn { display: none !important; }
+      .panel { border: 1px solid #ccc; background: #fff; color: #000; box-shadow: none; }
     }
   </style>
 </head>
-<body data-auth="required">
+<body>
 <div class="app-shell">
-  
   <header class="topbar">
     <div class="top-brand">KIAMBU <span>INTERNET SOLUTIONS</span></div>
     <nav class="nav">
       <a class="" href="dashboard.html">Dashboard</a>
       <a class="" href="devices.html">Device Management</a>
-      <a class="active" href="traffic-log.html">Traffic Logs</a>
-      <a class="" href="reports.html">Reports</a>
+      <a class="" href="traffic-log.html">Traffic Logs</a>
+      <a class="active" href="reports.html">Reports</a>
     </nav>
-    <div class="nav-user"> <span data-username>User</span> · <span data-role>Role</span> <button class="logout" onclick="logoutUser()">Logout</button></div>
+    <div class="nav-user"> <span data-username>User</span> <button class="logout" onclick="logoutUser()">Logout</button></div>
   </header>
 
   <main class="container">
     <div class="page-heading">
       <div>
-        <h1>Traffic Logs</h1>
-        <p>Search and review recorded traffic activity by device, time and status.</p>
+        <h1>Reports & Exports</h1>
+        <p>Generate a summary of device status and recorded traffic activity.</p>
       </div>
-      <button class="btn" onclick="runSnmpPoll()">↻ Run demo poll</button>
+      <div class="form-actions">
+        <button class="btn" onclick="exportTrafficCSVLocal()">↓ Export traffic CSV</button>
+        <button class="btn" onclick="printReportLocal()">Print / Save PDF</button>
+      </div>
     </div>
     
-    <div class="notice">Traffic values in this static version are generated for demonstration. They are not live packet or SNMP measurements.</div>
-    
-    <!-- Logging Interactive Base Console Box -->
-    <div class="panel">
-      <div class="toolbar">
-        <input id="log-search" type="search" placeholder="Search device, timestamp or status..." oninput="renderLogs()">
+    <div class="reports-charts-row">
+      <div class="panel">
+        <h3>📊 Protocol Distribution</h3>
+        <div style="height: 200px; position: relative; display: flex; justify-content: center;"><canvas id="protocolChart"></canvas></div>
       </div>
-      
+      <div class="panel">
+        <h3>⚡ Top Bandwidth Consumers</h3>
+        <div style="height: 200px; position: relative;"><canvas id="consumersChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Recent traffic records</h3>
       <div class="table-wrap">
         <table>
           <thead>
-            <tr>
-              <th>Timestamp</th>
-              <th>Device</th>
-              <th>Traffic in (bytes)</th>
-              <th>Traffic out (bytes)</th>
-              <th>Status</th>
-            </tr>
+            <tr><th>Timestamp</th><th>Device</th><th>Traffic in</th><th>Traffic out</th><th>Status</th></tr>
           </thead>
-          <tbody id="log-rows">
-            <!-- Populated dynamically via app.js -->
-          </tbody>
+          <tbody id="report-rows"></tbody>
         </table>
       </div>
     </div>
-    
-    <p id="page-message" class="auth-message"></p>
   </main>
 </div>
 
 <script>
-  // Dedicated Logout Core Engine Override
-  function logoutUser() {
-    localStorage.clear();
-    sessionStorage.clear();
-    window.location.href = "index.html";
+  const reportRecords = [
+    { time: "2026-11-10 20:30:11", name: "Core WAN Gateway", in: "45210400", out: "125400210", status: "Success" },
+    { time: "2026-11-10 20:29:45", name: "Main HQ Switch", in: "12450110", out: "8450200", status: "Success" },
+    { time: "2026-11-10 20:28:14", name: "Data Server 01", in: "845100560", out: "1940210440", status: "Success" }
+  ];
+
+  document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("report-rows").innerHTML = reportRecords.map(r => `
+      <tr><td>${r.time}</td><td><strong>${r.name}</strong></td><td>${r.in} bytes</td><td>${r.out} bytes</td><td>${r.status}</td></tr>
+    `).join('');
+
+    new Chart(document.getElementById('protocolChart').getContext('2d'), {
+      type: 'doughnut', data: { labels: ['HTTPS', 'SNMP', 'TCP', 'UDP'], datasets: [{ data:, backgroundColor: ['#00d2ff', '#9d4edd', '#39ff14', '#ff3333'], borderWidth: 0 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#8a99ad' } } }, cutout: '70%' }
+    });
+
+    new Chart(document.getElementById('consumersChart').getContext('2d'), {
+      type: 'bar', data: { labels: ['Core Router', 'Server 01', 'HQ Switch', 'Office AP'], datasets: [{ data:, backgroundColor: 'rgba(0, 210, 255, 0.75)' }] },
+      options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: 'rgba(255,255,255,0.03)' } }, y: { grid: { display: false } } } }
+    });
+  });
+
+  function exportTrafficCSVLocal() {
+    let csvContent = "data:text/csv;charset=utf-8,Timestamp,Device,Traffic In,Traffic Out,Status\n";
+    reportRecords.forEach(r => { csvContent += `${r.time},${r.name},${r.in},${r.out},${r.status}\n`; });
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "network_traffic_report.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
+
+  function printReportLocal() { window.print(); }
+  function logoutUser() { localStorage.removeItem("authToken"); window.location.href = "index.html"; }
 </script>
-<script src="js/app.js"></script>
 </body>
 </html>
