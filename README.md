@@ -1,121 +1,43 @@
-// Replace with your Google Cloud OAuth Client ID when connecting your custom domain
-const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_://googleusercontent.com";
+# Kiambu Internet Solutions — Network Traffic Monitoring System
 
-// Initialize default seed data matching Chapter 2 UI Models
-function initStorage() {
-    if (!localStorage.getItem('kis_users')) {
-        const defaultUsers = [
-            { username: 'admin', email: 'admin@kiambuinetsolutions.co.ke', password: 'password123', role: 'Management' },
-            { username: 'permenus', email: 'permenus@kiambuinetsolutions.co.ke', password: 'password123', role: 'Technician' }
-        ];
-        localStorage.setItem('kis_users', JSON.stringify(defaultUsers));
-    }
+## Project structure
 
-    if (!localStorage.getItem('kis_devices')) {
-        const defaultDevices = [
-            { id: 1, name: 'Core-Router-1', ip: '192.168.1.1', type: 'Router', status: 'Up', lastPolled: '2 min ago' },
-            { id: 2, name: 'Switch-Floor2', ip: '192.168.1.5', type: 'Switch', status: 'Up', lastPolled: '2 min ago' },
-            { id: 3, name: 'AP-Reception', ip: '192.168.1.20', type: 'Access Point', status: 'Down', lastPolled: '9 min ago' },
-            { id: 4, name: 'Core-Router-2', ip: '192.168.1.2', type: 'Router', status: 'Up', lastPolled: '1 min ago' }
-        ];
-        localStorage.setItem('kis_devices', JSON.stringify(defaultDevices));
-    }
+- `index.html` — login page (uses the supplied network monitoring image).
+- `signup.html` — account registration.
+- `dashboard.html` — network overview.
+- `devices.html` — device management (add, edit, delete).
+- `traffic-log.html` — searchable traffic records.
+- `reports.html` — summary, CSV export and print/PDF.
+- `css/style.css` — shared styling.
+- `js/app.js` — shared browser-side functions and demonstration data.
+- `assets/network-login.png` — supplied login background image.
 
-    if (!localStorage.getItem('kis_logs')) {
-        const defaultLogs = [
-            { timestamp: '2026-11-09 08:00:01', device: 'Core-Router-1', bytesInMB: 1228.8, bytesOutMB: 819.2, status: 'Normal' },
-            { timestamp: '2026-11-09 08:00:01', device: 'Switch-Floor2', bytesInMB: 450.0, bytesOutMB: 300.0, status: 'Normal' },
-            { timestamp: '2026-11-09 08:00:01', device: 'AP-Reception', bytesInMB: 0, bytesOutMB: 0, status: 'Unreachable' },
-            { timestamp: '2026-11-09 08:05:01', device: 'Core-Router-1', bytesInMB: 1433.6, bytesOutMB: 921.6, status: 'Normal' }
-        ];
-        localStorage.setItem('kis_logs', JSON.stringify(defaultLogs));
-    }
-}
+## Run on GitHub Pages
 
-initStorage();
+Upload the complete folder contents to the root of your GitHub repository, preserving the folders. In GitHub, enable Pages from the branch and root folder. Open the published site at its GitHub Pages URL.
 
-function getUsers() { return JSON.parse(localStorage.getItem('kis_users') || '[]'); }
-function saveUsers(users) { localStorage.setItem('kis_users', JSON.stringify(users)); }
+## Demonstration account
 
-function getDevices() { return JSON.parse(localStorage.getItem('kis_devices') || '[]'); }
-function saveDevices(devices) { localStorage.setItem('kis_devices', JSON.stringify(devices)); }
+The browser-side seed data creates:
+- Username: `admin`
+- Password: `password123`
 
-function getLogs() { return JSON.parse(localStorage.getItem('kis_logs') || '[]'); }
-function saveLogs(logs) { localStorage.setItem('kis_logs', JSON.stringify(logs)); }
+A second sample account is also seeded:
+- Username: `permenus`
+- Password: `password123`
 
-function getCurrentUser() { return JSON.parse(localStorage.getItem('kis_current_user') || 'null'); }
+Change/remove demonstration credentials before presenting publicly.
 
-function requireAuth() {
-    const user = getCurrentUser();
-    if (!user) {
-        window.location.href = 'index.html';
-        return null;
-    }
-    const navUser = document.getElementById('nav-username');
-    if (navUser) navUser.textContent = user.username;
-    return user;
-}
+## Important implementation note
 
-function logoutUser() {
-    localStorage.removeItem('kis_current_user');
-    window.location.href = 'index.html';
-}
+This is a static front-end reconstruction based on the HTML and JavaScript supplied in the conversation. It stores accounts, devices and logs in the browser's `localStorage`. This is suitable only for a classroom UI demonstration. It is **not secure authentication**: passwords are not protected by a server, and users can alter local browser storage.
 
-function formatMB(mb) {
-    if (mb <= 0) return '0 MB';
-    if (mb >= 1024) return (mb / 1024).toFixed(1) + ' GB';
-    return Math.round(mb) + ' MB';
-}
+The `Run demo poll` action creates simulated traffic records. It does **not** perform real SNMP polling, reachability checks, or collect actual network packets. Real monitoring requires the project's trusted backend and a network-side agent/service. Do not describe these simulated records as live measurements.
 
-// Decode Google JWT Credential on Frontend (GitHub Pages compatible)
-function handleGoogleCredentialResponse(response) {
-    try {
-        const base64Url = response.credential.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const payload = JSON.parse(decodeURIComponent(atob(base64).split('').map(c =>
-            '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-        ).join('')));
+Google OAuth is not enabled in this reconstruction. A real Google sign-in integration requires a configured OAuth client and server-side token validation or a correctly configured identity provider.
 
-        const users = getUsers();
-        let existing = users.find(u => u.email === payload.email);
+## Before publishing
 
-        if (!existing) {
-            existing = {
-                username: payload.name || payload.email.split('@')[0],
-                email: payload.email,
-                password: null,
-                role: 'Technician',
-                googleId: payload.sub
-            };
-            users.push(existing);
-            saveUsers(users);
-        }
-
-        localStorage.setItem('kis_current_user', JSON.stringify(existing));
-        window.location.href = 'dashboard.html';
-    } catch (e) {
-        alert('Google Sign-In error: ' + e.message);
-    }
-}
-
-// Run Simulated SNMP Poll across all devices
-function runSnmpPoll() {
-    const devices = getDevices();
-    const logs = getLogs();
-    const now = new Date();
-    const ts = now.toISOString().replace('T', ' ').substring(0, 19);
-
-    devices.forEach(dev => {
-        dev.lastPolled = 'Just now';
-        if (dev.status === 'Up') {
-            const inMB = +(Math.random() * 1200 + 250).toFixed(1);
-            const outMB = +(Math.random() * 800 + 150).toFixed(1);
-            logs.unshift({ timestamp: ts, device: dev.name, bytesInMB: inMB, bytesOutMB: outMB, status: 'Normal' });
-        } else {
-            logs.unshift({ timestamp: ts, device: dev.name, bytesInMB: 0, bytesOutMB: 0, status: 'Unreachable' });
-        }
-    });
-
-    saveDevices(devices);
-    saveLogs(logs);
-}
+1. Remove or change sample accounts and passwords.
+2. Do not put secrets, API service-role keys, or database passwords in frontend JavaScript.
+3. Connect authentication and monitoring to the intended backend before using real users or real network data.
