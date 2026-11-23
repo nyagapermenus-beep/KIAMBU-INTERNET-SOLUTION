@@ -1,203 +1,346 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reports - Kiambu Internet Solution</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-        body { background-color: #0f172a; color: #f1f5f9; display: flex; min-height: 100vh; }
-        
-        /* Sidebar */
-        aside { width: 256px; background-color: #1e293b; border-right: 1px solid #334155; display: flex; flex-direction: column; justify-content: space-between; padding: 24px; }
-        aside h2 { font-size: 1.25rem; font-weight: 700; color: #38bdf8; margin-bottom: 32px; }
-        nav a { display: block; padding: 10px 16px; border-radius: 6px; color: #cbd5e1; text-decoration: none; margin-bottom: 8px; }
-        nav a:hover { background-color: #334155; }
-        nav a.active { background-color: #0284c7; color: #ffffff; font-weight: 500; }
-        .btn-logout { width: 100%; background-color: #dc2626; color: #fff; border: none; padding: 10px; border-radius: 6px; font-weight: 500; cursor: pointer; }
-        .btn-logout:hover { background-color: #ef4444; }
-
-        /* Main Content */
-        main { flex: 1; padding: 40px; }
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid #1e293b; }
-        header h1 { font-size: 1.875rem; font-weight: 700; }
-        .btn { padding: 8px 16px; border-radius: 6px; border: none; color: #fff; font-size: 0.875rem; font-weight: 500; cursor: pointer; }
-        .btn-primary { background-color: #0284c7; }
-        .btn-primary:hover { background-color: #0ea5e9; }
-        .btn-secondary { background-color: #334155; }
-        .btn-secondary:hover { background-color: #475569; }
-
-        /* Table */
-        .table-card { background-color: #1e293b; border-radius: 12px; border: 1px solid #334155; overflow: hidden; }
-        table { width: 100%; border-collapse: collapse; text-align: left; }
-        thead tr { background-color: rgba(51, 65, 85, 0.5); color: #94a3b8; font-size: 0.875rem; border-bottom: 1px solid #334155; }
-        th, td { padding: 16px; }
-        tbody tr { border-bottom: 1px solid #334155; }
-        tbody tr:last-child { border-bottom: none; }
-        tbody tr:hover { background-color: rgba(51, 65, 85, 0.2); }
-        .text-right { text-align: right; }
-        .type-badge { color: #38bdf8; }
-        .action-btn { background: none; border: none; cursor: pointer; font-size: 0.95rem; margin-left: 12px; }
-        .action-btn:hover { text-decoration: underline; }
-        .text-save { color: #34d399; font-weight: 600; }
-        .text-edit { color: #38bdf8; }
-        .text-delete { color: #f87171; }
-
-        /* Modal */
-        .modal-overlay { position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 999; }
-        .hidden { display: none !important; }
-        .modal-box { background-color: #1e293b; padding: 24px; border-radius: 12px; border: 1px solid #334155; width: 100%; max-width: 440px; }
-        .modal-box h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 16px; }
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; font-size: 0.875rem; margin-bottom: 6px; }
-        .form-group input { width: 100%; padding: 8px 12px; background-color: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #f1f5f9; }
-        .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports - Kiambu Internet Solution</title>
+  <style>
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { margin: 0; background: #0f172a; color: #f1f5f9; display: flex; min-height: 100vh; }
+    aside { width: 256px; flex-shrink: 0; background: #1e293b; border-right: 1px solid #334155; display: flex; flex-direction: column; justify-content: space-between; padding: 24px; }
+    aside h2 { font-size: 1.25rem; color: #38bdf8; margin: 0 0 32px; }
+    nav a { display: block; padding: 10px 16px; border-radius: 6px; color: #cbd5e1; text-decoration: none; margin-bottom: 8px; }
+    nav a:hover { background: #334155; }
+    nav a.active { background: #0284c7; color: white; font-weight: 600; }
+    .btn-logout { width: 100%; background: #dc2626; color: white; border: 0; padding: 10px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+    main { flex: 1; min-width: 0; padding: 40px; }
+    header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid #334155; }
+    header h1 { margin: 0; font-size: 1.875rem; }
+    .btn { padding: 9px 16px; border-radius: 6px; border: 0; color: white; font-size: .9rem; font-weight: 600; cursor: pointer; }
+    .btn-primary { background: #0284c7; }
+    .btn-primary:hover { background: #0ea5e9; }
+    .btn-secondary { background: #334155; }
+    .btn-secondary:hover { background: #475569; }
+    .table-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; min-width: 650px; }
+    thead tr { background: #33415580; color: #94a3b8; font-size: .875rem; }
+    th, td { padding: 16px; border-bottom: 1px solid #334155; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: #33415533; }
+    .text-right { text-align: right; white-space: nowrap; }
+    .type-badge { color: #38bdf8; }
+    .action-btn { background: none; border: 0; cursor: pointer; font-size: .9rem; margin-left: 12px; padding: 4px 0; }
+    .action-btn:hover { text-decoration: underline; }
+    .text-pdf { color: #34d399; font-weight: 700; }
+    .text-edit { color: #38bdf8; }
+    .text-delete { color: #f87171; }
+    .empty-state { text-align: center; color: #94a3b8; padding: 32px; }
+    .modal-overlay { position: fixed; inset: 0; background: #000b; display: flex; align-items: center; justify-content: center; z-index: 999; padding: 16px; }
+    .hidden { display: none !important; }
+    .modal-box { background: #1e293b; padding: 24px; border-radius: 12px; border: 1px solid #475569; width: 100%; max-width: 440px; box-shadow: 0 20px 50px #0008; }
+    .modal-box h2 { font-size: 1.25rem; margin: 0 0 20px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: .9rem; margin-bottom: 6px; }
+    .form-group input { width: 100%; padding: 10px 12px; background: #0f172a; border: 1px solid #475569; border-radius: 6px; color: #f1f5f9; }
+    .form-group input:focus { outline: 2px solid #0284c7; border-color: transparent; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+    .notice { color: #94a3b8; font-size: .85rem; margin: 14px 0 0; }
+    @media (max-width: 760px) {
+      body { display: block; }
+      aside { width: 100%; padding: 16px; gap: 12px; }
+      aside h2 { margin-bottom: 14px; }
+      nav { display: flex; flex-wrap: wrap; gap: 4px; }
+      nav a { margin: 0; padding: 8px 10px; }
+      main { padding: 22px 16px; }
+      header { align-items: flex-start; flex-direction: column; }
+      header h1 { font-size: 1.5rem; }
+    }
+  </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <aside>
-        <div>
-            <h2>KIS Portal</h2>
-            <nav>
-                <a href="dashboard.html">Dashboard</a>
-                <a href="devices.html">Devices</a>
-                <a href="traffic.html">Traffic</a>
-                <a href="reports.html" class="active">Reports</a>
-            </nav>
-        </div>
-        <button type="button" onclick="logout()" class="btn-logout">Logout</button>
-    </aside>
-
-    <!-- Main Content -->
-    <main>
-        <header>
-            <h1>Network Reports & Logs</h1>
-            <button type="button" onclick="openAddModal()" class="btn btn-primary">Create Report</button>
-        </header>
-
-        <div class="table-card">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Report Title</th>
-                        <th>Date Generated</th>
-                        <th>Type</th>
-                        <th class="text-right">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="reports-table-body"></tbody>
-            </table>
-        </div>
-    </main>
-
-    <!-- Modal -->
-    <div id="report-modal" class="modal-overlay hidden">
-        <div class="modal-box">
-            <h2 id="modal-title">Create Report</h2>
-            <input type="hidden" id="report-index">
-            <div class="form-group">
-                <label>Report Title</label>
-                <input type="text" id="rep-title" placeholder="Enter report title">
-            </div>
-            <div class="form-group">
-                <label>Date</label>
-                <input type="date" id="rep-date">
-            </div>
-            <div class="form-group">
-                <label>Type</label>
-                <input type="text" id="rep-type" placeholder="e.g. Audit, Incident, Performance">
-            </div>
-            <div class="modal-footer">
-                <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancel</button>
-                <button type="button" onclick="saveReport()" class="btn btn-primary">Save</button>
-            </div>
-        </div>
+  <aside>
+    <div>
+      <h2>KIS Portal</h2>
+      <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="devices.html">Devices</a>
+        <a href="traffic.html">Traffic</a>
+        <a href="reports.html" class="active">Reports</a>
+      </nav>
     </div>
+    <button type="button" onclick="logout()" class="btn-logout">Logout</button>
+  </aside>
 
-    <script>
-        var reports = [
-            { title: 'Monthly Bandwidth Audit - Nov', date: '2026-11-01', type: 'Audit' },
-            { title: 'Node Outage Incident Log', date: '2026-11-05', type: 'Incident' }
-        ];
+  <main>
+    <header>
+      <h1>Network Reports &amp; Logs</h1>
+      <button type="button" id="create-report-btn" class="btn btn-primary">Create Report</button>
+    </header>
 
-        try {
-            var saved = localStorage.getItem('kis_reports');
-            if (saved) {
-                var parsed = JSON.parse(saved);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                    reports = parsed;
-                }
-            }
-        } catch (e) {}
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Report Title</th>
+            <th>Date Generated</th>
+            <th>Type</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="reports-table-body"></tbody>
+      </table>
+    </div>
+    <p class="notice">Reports created here are saved in this browser on this device.</p>
+  </main>
 
-        function saveToStorage() {
-            try {
-                localStorage.setItem('kis_reports', JSON.stringify(reports));
-            } catch (e) {}
+  <div id="report-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-box">
+      <h2 id="modal-title">Create Report</h2>
+      <form id="report-form">
+        <input type="hidden" id="report-index">
+        <div class="form-group">
+          <label for="rep-title">Report Title</label>
+          <input type="text" id="rep-title" maxlength="120" placeholder="Enter report title" required>
+        </div>
+        <div class="form-group">
+          <label for="rep-date">Date</label>
+          <input type="date" id="rep-date" required>
+        </div>
+        <div class="form-group">
+          <label for="rep-type">Type</label>
+          <input type="text" id="rep-type" maxlength="60" placeholder="e.g. Audit, Incident, Performance" required>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="cancel-btn" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-btn">Create Report</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    'use strict';
+
+    const STORAGE_KEY = 'kis_reports';
+    const defaultReports = [
+      { title: 'Monthly Bandwidth Audit - Nov', date: '2026-11-01', type: 'Audit' },
+      { title: 'Node Outage Incident Log', date: '2026-11-05', type: 'Incident' }
+    ];
+
+    function loadReports() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored === null) return defaultReports.slice();
+        const parsed = JSON.parse(stored);
+        return Array.isArray(parsed) ? parsed.filter(isValidReport) : defaultReports.slice();
+      } catch (error) {
+        console.error('Could not load reports:', error);
+        return defaultReports.slice();
+      }
+    }
+
+    function isValidReport(report) {
+      return report && typeof report.title === 'string' &&
+        typeof report.date === 'string' && typeof report.type === 'string';
+    }
+
+    let reports = loadReports();
+
+    function persistReports() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(reports));
+        return true;
+      } catch (error) {
+        console.error('Could not save reports:', error);
+        alert('The report could not be saved in this browser. Check available storage and try again.');
+        return false;
+      }
+    }
+
+    function todayISO() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function escapeHTML(value) {
+      return String(value).replace(/[&<>"']/g, character => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[character]);
+    }
+
+    function renderReports() {
+      const tbody = document.getElementById('reports-table-body');
+      tbody.replaceChildren();
+
+      if (reports.length === 0) {
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.colSpan = 4;
+        cell.className = 'empty-state';
+        cell.textContent = 'No reports yet. Select “Create Report” to add one.';
+        row.appendChild(cell);
+        tbody.appendChild(row);
+        return;
+      }
+
+      reports.forEach((report, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td style="font-weight:600">${escapeHTML(report.title)}</td>
+          <td style="color:#cbd5e1">${escapeHTML(report.date)}</td>
+          <td class="type-badge">${escapeHTML(report.type)}</td>
+          <td class="text-right">
+            <button type="button" class="action-btn text-pdf" data-action="pdf" data-index="${index}">Download PDF</button>
+            <button type="button" class="action-btn text-edit" data-action="edit" data-index="${index}">Edit</button>
+            <button type="button" class="action-btn text-delete" data-action="delete" data-index="${index}">Delete</button>
+          </td>`;
+        tbody.appendChild(row);
+      });
+    }
+
+    function openAddModal() {
+      document.getElementById('report-form').reset();
+      document.getElementById('report-index').value = '';
+      document.getElementById('rep-date').value = todayISO();
+      document.getElementById('modal-title').textContent = 'Create Report';
+      document.getElementById('save-btn').textContent = 'Create Report';
+      document.getElementById('report-modal').classList.remove('hidden');
+      document.getElementById('rep-title').focus();
+    }
+
+    function openEditModal(index) {
+      const report = reports[index];
+      if (!report) return;
+      document.getElementById('report-index').value = String(index);
+      document.getElementById('rep-title').value = report.title;
+      document.getElementById('rep-date').value = report.date;
+      document.getElementById('rep-type').value = report.type;
+      document.getElementById('modal-title').textContent = 'Edit Report';
+      document.getElementById('save-btn').textContent = 'Save Changes';
+      document.getElementById('report-modal').classList.remove('hidden');
+      document.getElementById('rep-title').focus();
+    }
+
+    function closeModal() {
+      document.getElementById('report-modal').classList.add('hidden');
+      document.getElementById('report-form').reset();
+    }
+
+    function saveReport(event) {
+      event.preventDefault();
+      const title = document.getElementById('rep-title').value.trim();
+      const date = document.getElementById('rep-date').value;
+      const type = document.getElementById('rep-type').value.trim();
+      const indexValue = document.getElementById('report-index').value;
+
+      if (!title || !date || !type) {
+        alert('Please complete all report fields.');
+        return;
+      }
+
+      const report = { title, date, type };
+      if (indexValue === '') {
+        reports.unshift(report);
+      } else {
+        const index = Number(indexValue);
+        if (!Number.isInteger(index) || !reports[index]) {
+          alert('This report could not be found. Refresh the page and try again.');
+          return;
         }
+        reports[index] = report;
+      }
 
-        function getTodayDate() {
-            var d = new Date();
-            var y = d.getFullYear();
-            var m = String(d.getMonth() + 1).padStart(2, '0');
-            var day = String(d.getDate()).padStart(2, '0');
-            return y + '-' + m + '-' + day;
-        }
+      if (!persistReports()) return;
+      renderReports();
+      closeModal();
+    }
 
-        function renderReports() {
-            var tbody = document.getElementById('reports-table-body');
-            tbody.innerHTML = '';
+    function deleteReport(index) {
+      const report = reports[index];
+      if (!report) return;
+      if (!confirm(`Delete "${report.title}"? This cannot be undone.`)) return;
+      reports.splice(index, 1);
+      if (persistReports()) renderReports();
+    }
 
-            for (var i = 0; i < reports.length; i++) {
-                var r = reports.slice(i, i + 1).pop();
-                var tr = document.createElement('tr');
-                tr.innerHTML =
-                    '<td style="font-weight: 500;">' + r.title + '</td>' +
-                    '<td style="color: #cbd5e1;">' + r.date + '</td>' +
-                    '<td class="type-badge">' + r.type + '</td>' +
-                    '<td class="text-right">' +
-                        '<button type="button" onclick="saveWord(' + i + ')" class="action-btn text-save">Save</button>' +
-                        '<button type="button" onclick="openEditModal(' + i + ')" class="action-btn text-edit">Edit</button>' +
-                        '<button type="button" onclick="deleteReport(' + i + ')" class="action-btn text-delete">Delete</button>' +
-                    '</td>';
-                tbody.appendChild(tr);
-            }
-            saveToStorage();
-        }
+    function buildPdfHTML(report) {
+      const safeTitle = escapeHTML(report.title);
+      const safeDate = escapeHTML(report.date);
+      const safeType = escapeHTML(report.type);
+      return `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<title>${safeTitle}</title>
+<style>
+  body { font-family: Arial, sans-serif; color: #1e293b; margin: 42px; }
+  h1 { color: #0369a1; font-size: 22px; margin-bottom: 5px; }
+  .sub { color: #64748b; font-size: 12px; margin-top: 0; }
+  hr { border: 0; border-top: 2px solid #cbd5e1; margin: 22px 0; }
+  h2 { font-size: 20px; margin-bottom: 18px; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { border: 1px solid #cbd5e1; padding: 12px; text-align: left; }
+  th { width: 30%; background: #f1f5f9; }
+  footer { margin-top: 40px; color: #64748b; font-size: 11px; }
+  @page { size: A4; margin: 18mm; }
+</style></head><body>
+  <h1>Kiambu Internet Solution (KIS Portal)</h1>
+  <p class="sub">Network Report | Generated on ${todayISO()}</p>
+  <hr>
+  <h2>${safeTitle}</h2>
+  <table>
+    <tr><th>Report Title</th><td>${safeTitle}</td></tr>
+    <tr><th>Report Date</th><td>${safeDate}</td></tr>
+    <tr><th>Report Type</th><td>${safeType}</td></tr>
+  </table>
+  <footer>Generated by Kiambu Internet Solution (KIS Portal).</footer>
+  <script>window.addEventListener('load', function () { setTimeout(function () { window.focus(); window.print(); }, 300); });<\/script>
+</body></html>`;
+    }
 
-        function saveWord(index) {
-            var r = reports.slice(index, index + 1).pop();
-            if (!r) return;
+    function downloadPDF(index) {
+      const report = reports[index];
+      if (!report) return;
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        alert('Your browser blocked the PDF window. Allow pop-ups for this site, then try again.');
+        return;
+      }
+      printWindow.document.open();
+      printWindow.document.write(buildPdfHTML(report));
+      printWindow.document.close();
+    }
 
-            var docContent =
-                "<html xmlns:o='urn:schemas-microsoft-com:office:office' " +
-                "xmlns:w='urn:schemas-microsoft-com:office:word' " +
-                "xmlns='http://w3.org'>" +
-                "<head><meta charset='utf-8'><title>" + r.title + "</title></head>" +
-                "<body style='font-family: Arial, sans-serif; color: #1e293b;'>" +
-                "<h2 style='color: #0284c7; margin-bottom: 4px;'>Kiambu Internet Solution (KIS Portal)</h2>" +
-                "<p style='color: #64748b; font-size: 12px; margin-top: 0;'>Generated on " + getTodayDate() + "</p>" +
-                "<hr style='border: 1px solid #cbd5e1;'>" +
-                "<h3>" + r.title + "</h3>" +
-                "<table border='1' cellpadding='8' cellspacing='0' style='border-collapse: collapse; width: 100%; border-color: #cbd5e1;'>" +
-                "<tr><th style='background-color: #f1f5f9; text-align: left; width: 30%;'>Report Title</th><td>" + r.title + "</td></tr>" +
-                "<tr><th style='background-color: #f1f5f9; text-align: left;'>Date Generated</th><td>" + r.date + "</td></tr>" +
-                "<tr><th style='background-color: #f1f5f9; text-align: left;'>Report Type</th><td>" + r.type + "</td></tr>" +
-                "</table>" +
-                "</body></html>";
+    document.getElementById('create-report-btn').addEventListener('click', openAddModal);
+    document.getElementById('cancel-btn').addEventListener('click', closeModal);
+    document.getElementById('report-form').addEventListener('submit', saveReport);
 
-            var filename = r.title.replace(/[^a-z0-9_-]/gi, '_') + '.doc';
-            var blob = new Blob(['\ufeff', docContent], { type: 'application/msword' });
-            var url = URL.createObjectURL(blob);
+    document.getElementById('reports-table-body').addEventListener('click', event => {
+      const button = event.target.closest('button[data-action]');
+      if (!button) return;
+      const index = Number(button.dataset.index);
+      switch (button.dataset.action) {
+        case 'pdf': downloadPDF(index); break;
+        case 'edit': openEditModal(index); break;
+        case 'delete': deleteReport(index); break;
+      }
+    });
 
-            var a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
-        }
+    document.getElementById('report-modal').addEventListener('click', event => {
+      if (event.target.id === 'report-modal') closeModal();
+    });
 
-        function openAddModal() {
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') closeModal();
+    });
+
+    function logout() {
+      // Keep saved reports intact; only navigate to the portal login page.
+      window.location.href = 'login.html';
+    }
+
+    renderReports();
+  </script>
+</body>
+</html>
