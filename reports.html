@@ -74,7 +74,7 @@
   <main>
     <header>
       <h1>Network Reports &amp; Logs</h1>
-      <button type="button" id="create-report-btn" class="btn btn-primary">Create Report</button>
+      <button type="button" id="create-report-btn" class="btn btn-primary" onclick="openAddModal()">Create Report</button>
     </header>
 
     <div class="table-card">
@@ -210,6 +210,9 @@
       document.getElementById('report-modal').classList.remove('hidden');
       document.getElementById('rep-title').focus();
     }
+
+    // Explicitly expose this function so the Create Report button always reaches it.
+    window.openAddModal = openAddModal;
 
     function openEditModal(index) {
       const report = reports[index];
