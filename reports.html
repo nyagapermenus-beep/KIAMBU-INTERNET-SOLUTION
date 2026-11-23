@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reports - Kiambu Internet Solution</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://tailwindcss.com"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 flex min-h-screen">
     <!-- Sidebar -->
@@ -18,7 +18,7 @@
                 <a href="reports.html" class="block py-2.5 px-4 rounded bg-sky-600 text-white font-medium">Reports</a>
             </nav>
         </div>
-        <button onclick="logout()" class="w-full bg-red-600 hover:bg-red-500 text-white font-medium py-2 rounded transition">Logout</button>
+        <button type="button" onclick="logout()" class="w-full bg-red-600 hover:bg-red-500 text-white font-medium py-2 rounded transition">Logout</button>
     </aside>
 
     <!-- Main Content -->
@@ -26,8 +26,8 @@
         <header class="flex justify-between items-center mb-8 pb-4 border-b border-slate-800">
             <h1 class="text-3xl font-bold">Network Reports & Logs</h1>
             <div class="space-x-3">
-                <button onclick="saveAllReportsWord()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded text-sm font-medium transition">Save All as Word</button>
-                <button onclick="openAddModal()" class="bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded text-sm font-medium transition">Create Report</button>
+                <button type="button" onclick="saveAllReportsWord()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded text-sm font-medium transition">Save All as Word</button>
+                <button type="button" onclick="openAddModal()" class="bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded text-sm font-medium transition">Create Report</button>
             </div>
         </header>
 
@@ -47,13 +47,13 @@
     </main>
 
     <!-- Modal -->
-    <div id="report-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center">
+    <div id="report-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50">
         <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 w-full max-w-md">
-            <h2 id="modal-title" class="text-xl font-bold mb-4">Edit Report</h2>
+            <h2 id="modal-title" class="text-xl font-bold mb-4">Create Report</h2>
             <input type="hidden" id="report-index">
             <div class="mb-4">
                 <label class="block text-sm mb-1">Report Title</label>
-                <input type="text" id="rep-title" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded">
+                <input type="text" id="rep-title" placeholder="Enter report title" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded">
             </div>
             <div class="mb-4">
                 <label class="block text-sm mb-1">Date</label>
@@ -64,8 +64,8 @@
                 <input type="text" id="rep-type" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded">
             </div>
             <div class="flex justify-end space-x-3">
-                <button onclick="closeModal()" class="px-4 py-2 bg-slate-700 rounded">Cancel</button>
-                <button onclick="saveReport()" class="px-4 py-2 bg-sky-600 rounded">Save</button>
+                <button type="button" onclick="closeModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded">Cancel</button>
+                <button type="button" onclick="saveReport()" class="px-4 py-2 bg-sky-600 hover:bg-sky-500 rounded">Save</button>
             </div>
         </div>
     </div>
@@ -88,9 +88,9 @@
                         <td class="p-4 text-slate-300">${r.date}</td>
                         <td class="p-4 text-sky-400">${r.type}</td>
                         <td class="p-4 text-right space-x-3">
-                            <button onclick="saveSingleReportWord(${index})" class="text-emerald-400 hover:underline">Save</button>
-                            <button onclick="openEditModal(${index})" class="text-sky-400 hover:underline">Edit</button>
-                            <button onclick="deleteReport(${index})" class="text-red-400 hover:underline">Delete</button>
+                            <button type="button" onclick="saveSingleReportWord(${index})" class="text-emerald-400 hover:underline">Save</button>
+                            <button type="button" onclick="openEditModal(${index})" class="text-sky-400 hover:underline">Edit</button>
+                            <button type="button" onclick="deleteReport(${index})" class="text-red-400 hover:underline">Delete</button>
                         </td>
                     </tr>
                 `;
@@ -121,11 +121,12 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            URL.revokeObjectURL(url);
+            setTimeout(() => URL.revokeObjectURL(url), 100);
         }
 
         function saveSingleReportWord(index) {
             const r = reports[index];
+            if (!r) return;
             const content = `
                 <h3>${r.title}</h3>
                 <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; border-color: #cbd5e1;">
@@ -187,10 +188,3 @@
             document.getElementById('rep-title').value = reports[index].title;
             document.getElementById('rep-date').value = reports[index].date;
             document.getElementById('rep-type').value = reports[index].type;
-            document.getElementById('report-modal').classList.remove('hidden');
-        }
-
-        function closeModal() { document.getElementById('report-modal').classList.add('hidden'); }
-
-        function saveReport() {
-            const index = document.getElementById('report-index').value;
