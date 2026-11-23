@@ -69,7 +69,7 @@
                 <a href="reports.html" class="active">Reports</a>
             </nav>
         </div>
-        <button type="button" onclick="logout()" class="btn-logout">Logout</button>
+        <button type="button" id="logout-btn" class="btn-logout">Logout</button>
     </aside>
 
     <!-- Main Content -->
@@ -77,8 +77,8 @@
         <header>
             <h1>Network Reports & Logs</h1>
             <div class="header-actions">
-                <button type="button" onclick="saveAllReportsWord()" class="btn btn-success">Save All as Word</button>
-                <button type="button" onclick="openAddModal()" class="btn btn-primary">Create Report</button>
+                <button type="button" id="save-all-btn" class="btn btn-success">Save All as Word</button>
+                <button type="button" id="create-report-btn" class="btn btn-primary">Create Report</button>
             </div>
         </header>
 
@@ -112,40 +112,90 @@
             </div>
             <div class="form-group">
                 <label>Type</label>
-                <input type="text" id="rep-type">
+                <input type="text" id="rep-type" placeholder="e.g. Audit, Incident, Performance">
             </div>
             <div class="modal-footer">
-                <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancel</button>
-                <button type="button" onclick="saveReport()" class="btn btn-primary">Save</button>
+                <button type="button" id="cancel-modal-btn" class="btn btn-secondary">Cancel</button>
+                <button type="button" id="save-modal-btn" class="btn btn-primary">Save</button>
             </div>
         </div>
     </div>
 
     <script>
-        if (!localStorage.getItem('kis_logged_in')) window.location.href = 'index.html';
+        if (!localStorage.getItem('kis_logged_in')) {
+            window.location.href = 'index.html';
+        }
 
-        let reports = JSON.parse(localStorage.getItem('kis_reports')) || [
+        const defaultReports = [
             { title: 'Monthly Bandwidth Audit - Nov', date: '2026-11-01', type: 'Audit' },
             { title: 'Node Outage Incident Log', date: '2026-11-05', type: 'Incident' }
         ];
 
+        let reports = defaultReports;
+        try {
+            const saved = JSON.parse(localStorage.getItem('kis_reports'));
+            if (Array.isArray(saved) && saved.length > 0) {
+                reports = saved;
+            }
+        } catch (e) {
+            localStorage.removeItem('kis_reports');
+        }
+
+        function getTodayDate() {
+            return new Date().toISOString().slice(0, 10);
+        }
+
         function renderReports() {
             const tbody = document.getElementById('reports-table-body');
             tbody.innerHTML = '';
+
             reports.forEach((r, index) => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td style="font-weight: 500;">${r.title}</td>
-                        <td style="color: #cbd5e1;">${r.date}</td>
-                        <td class="type-badge">${r.type}</td>
-                        <td class="text-right">
-                            <button type="button" onclick="saveSingleReportWord(${index})" class="action-btn text-save">Save</button>
-                            <button type="button" onclick="openEditModal(${index})" class="action-btn text-edit">Edit</button>
-                            <button type="button" onclick="deleteReport(${index})" class="action-btn text-delete">Delete</button>
-                        </td>
-                    </tr>
-                `;
+                const tr = document.createElement('tr');
+
+                const tdTitle = document.createElement('td');
+                tdTitle.style.fontWeight = '500';
+                tdTitle.textContent = r.title;
+
+                const tdDate = document.createElement('td');
+                tdDate.style.color = '#cbd5e1';
+                tdDate.textContent = String(r.date);
+
+                const tdType = document.createElement('td');
+                tdType.className = 'type-badge';
+                tdType.textContent = r.type;
+
+                const tdActions = document.createElement('td');
+                tdActions.className = 'text-right';
+
+                const btnSave = document.createElement('button');
+                btnSave.type = 'button';
+                btnSave.className = 'action-btn text-save';
+                btnSave.textContent = 'Save';
+                btnSave.addEventListener('click', () => saveSingleReportWord(index));
+
+                const btnEdit = document.createElement('button');
+                btnEdit.type = 'button';
+                btnEdit.className = 'action-btn text-edit';
+                btnEdit.textContent = 'Edit';
+                btnEdit.addEventListener('click', () => openEditModal(index));
+
+                const btnDelete = document.createElement('button');
+                btnDelete.type = 'button';
+                btnDelete.className = 'action-btn text-delete';
+                btnDelete.textContent = 'Delete';
+                btnDelete.addEventListener('click', () => deleteReport(index));
+
+                tdActions.appendChild(btnSave);
+                tdActions.appendChild(btnEdit);
+                tdActions.appendChild(btnDelete);
+
+                tr.appendChild(tdTitle);
+                tr.appendChild(tdDate);
+                tr.appendChild(tdType);
+                tr.appendChild(tdActions);
+                tbody.appendChild(tr);
             });
+
             localStorage.setItem('kis_reports', JSON.stringify(reports));
         }
 
@@ -164,38 +214,3 @@
                 </html>
             `;
 
-            const blob = new Blob(['\ufeff', fullHtml], { type: 'application/msword' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `${filename.replace(/[^a-z0-9_-]/gi, '_')}.doc`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            setTimeout(() => URL.revokeObjectURL(url), 100);
-        }
-
-        function saveSingleReportWord(index) {
-            const r = reports[index];
-            if (!r) return;
-            const content = `
-                <h3>${r.title}</h3>
-                <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; border-color: #cbd5e1;">
-                    <tr>
-                        <th style="background-color: #f1f5f9; text-align: left; width: 30%;">Report Title</th>
-                        <td>${r.title}</td>
-                    </tr>
-                    <tr>
-                        <th style="background-color: #f1f5f9; text-align: left;">Date Generated</th>
-                        <td>${r.date}</td>
-                    </tr>
-                    <tr>
-                        <th style="background-color: #f1f5f9; text-align: left;">Report Type</th>
-                        <td>${r.type}</td>
-                    </tr>
-                </table>
-            `;
-            downloadWordDoc(r.title, content);
-        }
-
-        function saveAllReportsWord() {
