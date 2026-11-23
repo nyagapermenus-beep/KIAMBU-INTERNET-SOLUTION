@@ -25,7 +25,10 @@
     <main class="flex-1 p-10">
         <header class="flex justify-between items-center mb-8 pb-4 border-b border-slate-800">
             <h1 class="text-3xl font-bold">Network Reports & Logs</h1>
-            <button onclick="openAddModal()" class="bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded text-sm font-medium transition">Create Report</button>
+            <div class="space-x-3">
+                <button onclick="saveAllReportsWord()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded text-sm font-medium transition">Save All as Word</button>
+                <button onclick="openAddModal()" class="bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded text-sm font-medium transition">Create Report</button>
+            </div>
         </header>
 
         <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow">
@@ -84,7 +87,8 @@
                         <td class="p-4 font-medium">${r.title}</td>
                         <td class="p-4 text-slate-300">${r.date}</td>
                         <td class="p-4 text-sky-400">${r.type}</td>
-                        <td class="p-4 text-right space-x-2">
+                        <td class="p-4 text-right space-x-3">
+                            <button onclick="saveSingleReportWord(${index})" class="text-emerald-400 hover:underline">Save</button>
                             <button onclick="openEditModal(${index})" class="text-sky-400 hover:underline">Edit</button>
                             <button onclick="deleteReport(${index})" class="text-red-400 hover:underline">Delete</button>
                         </td>
@@ -92,6 +96,80 @@
                 `;
             });
             localStorage.setItem('kis_reports', JSON.stringify(reports));
+        }
+
+        function downloadWordDoc(filename, bodyHtml) {
+            const fullHtml = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+                      xmlns:w='urn:schemas-microsoft-com:office:word' 
+                      xmlns='http://w3.org'>
+                <head><meta charset='utf-8'><title>${filename}</title></head>
+                <body style="font-family: Arial, sans-serif; color: #1e293b;">
+                    <h2 style="color: #0284c7; margin-bottom: 4px;">Kiambu Internet Solution (KIS Portal)</h2>
+                    <p style="color: #64748b; font-size: 12px; margin-top: 0;">Generated on ${new Date().toLocaleDateString()}</p>
+                    <hr style="border: 1px solid #cbd5e1;">
+                    ${bodyHtml}
+                </body>
+                </html>
+            `;
+
+            const blob = new Blob(['\ufeff', fullHtml], { type: 'application/msword' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${filename.replace(/[^a-z0-9_-]/gi, '_')}.doc`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function saveSingleReportWord(index) {
+            const r = reports[index];
+            const content = `
+                <h3>${r.title}</h3>
+                <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; border-color: #cbd5e1;">
+                    <tr>
+                        <th style="background-color: #f1f5f9; text-align: left; width: 30%;">Report Title</th>
+                        <td>${r.title}</td>
+                    </tr>
+                    <tr>
+                        <th style="background-color: #f1f5f9; text-align: left;">Date Generated</th>
+                        <td>${r.date}</td>
+                    </tr>
+                    <tr>
+                        <th style="background-color: #f1f5f9; text-align: left;">Report Type</th>
+                        <td>${r.type}</td>
+                    </tr>
+                </table>
+            `;
+            downloadWordDoc(r.title, content);
+        }
+
+        function saveAllReportsWord() {
+            if (reports.length === 0) return alert('No reports available to save.');
+            const rows = reports.map(r => `
+                <tr>
+                    <td>${r.title}</td>
+                    <td>${r.date}</td>
+                    <td>${r.type}</td>
+                </tr>
+            `).join('');
+
+            const content = `
+                <h3>All Network Reports & Logs</h3>
+                <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; border-color: #cbd5e1;">
+                    <thead>
+                        <tr style="background-color: #f1f5f9;">
+                            <th style="text-align: left;">Report Title</th>
+                            <th style="text-align: left;">Date Generated</th>
+                            <th style="text-align: left;">Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            `;
+            downloadWordDoc('KIS_Network_Reports', content);
         }
 
         function openAddModal() {
@@ -116,25 +194,3 @@
 
         function saveReport() {
             const index = document.getElementById('report-index').value;
-            const title = document.getElementById('rep-title').value.trim();
-            const date = document.getElementById('rep-date').value;
-            const type = document.getElementById('rep-type').value.trim();
-
-            if (!title) return;
-            if (index === '') reports.push({ title, date, type });
-            else reports[index] = { title, date, type };
-
-            closeModal();
-            renderReports();
-        }
-
-        function deleteReport(index) {
-            reports.splice(index, 1);
-            renderReports();
-        }
-
-        function logout() { localStorage.removeItem('kis_logged_in'); window.location.href = 'index.html'; }
-        renderReports();
-    </script>
-</body>
-</html>
