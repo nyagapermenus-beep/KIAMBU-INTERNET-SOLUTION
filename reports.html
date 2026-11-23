@@ -4,68 +4,119 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reports - Kiambu Internet Solution</title>
-    <script src="https://tailwindcss.com"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+        body { background-color: #0f172a; color: #f1f5f9; display: flex; min-height: 100vh; }
+        
+        /* Sidebar */
+        aside { width: 256px; background-color: #1e293b; border-right: 1px solid #334155; display: flex; flex-direction: column; justify-content: space-between; padding: 24px; }
+        aside h2 { font-size: 1.25rem; font-weight: 700; color: #38bdf8; margin-bottom: 32px; }
+        nav a { display: block; padding: 10px 16px; border-radius: 6px; color: #cbd5e1; text-decoration: none; margin-bottom: 8px; }
+        nav a:hover { background-color: #334155; }
+        nav a.active { background-color: #0284c7; color: #ffffff; font-weight: 500; }
+        .btn-logout { width: 100%; background-color: #dc2626; color: #fff; border: none; padding: 10px; border-radius: 6px; font-weight: 500; cursor: pointer; }
+        .btn-logout:hover { background-color: #ef4444; }
+
+        /* Main Content */
+        main { flex: 1; padding: 40px; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid #1e293b; }
+        header h1 { font-size: 1.875rem; font-weight: 700; }
+        .header-actions { display: flex; gap: 12px; }
+        .btn { padding: 8px 16px; border-radius: 6px; border: none; color: #fff; font-size: 0.875rem; font-weight: 500; cursor: pointer; }
+        .btn-primary { background-color: #0284c7; }
+        .btn-primary:hover { background-color: #0ea5e9; }
+        .btn-success { background-color: #059669; }
+        .btn-success:hover { background-color: #10b981; }
+        .btn-secondary { background-color: #334155; }
+        .btn-secondary:hover { background-color: #475569; }
+
+        /* Table */
+        .table-card { background-color: #1e293b; border-radius: 12px; border: 1px solid #334155; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        thead tr { background-color: rgba(51, 65, 85, 0.5); color: #94a3b8; font-size: 0.875rem; border-bottom: 1px solid #334155; }
+        th, td { padding: 16px; }
+        tbody tr { border-bottom: 1px solid #334155; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background-color: rgba(51, 65, 85, 0.2); }
+        .text-right { text-align: right; }
+        .type-badge { color: #38bdf8; }
+        .action-btn { background: none; border: none; cursor: pointer; font-size: 0.95rem; margin-left: 12px; }
+        .action-btn:hover { text-decoration: underline; }
+        .text-save { color: #34d399; }
+        .text-edit { color: #38bdf8; }
+        .text-delete { color: #f87171; }
+
+        /* Modal */
+        .modal-overlay { position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.65); display: flex; align-items: center; justify-content: center; z-index: 50; }
+        .hidden { display: none !important; }
+        .modal-box { background-color: #1e293b; padding: 24px; border-radius: 12px; border: 1px solid #334155; width: 100%; max-width: 440px; }
+        .modal-box h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 16px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 0.875rem; margin-bottom: 6px; }
+        .form-group input { width: 100%; padding: 8px 12px; background-color: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #f1f5f9; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+    </style>
 </head>
-<body class="bg-slate-900 text-slate-100 flex min-h-screen">
+<body>
     <!-- Sidebar -->
-    <aside class="w-64 bg-slate-800 border-r border-slate-700 flex flex-col justify-between p-6">
+    <aside>
         <div>
-            <h2 class="text-xl font-bold text-sky-400 mb-8">KIS Portal</h2>
-            <nav class="space-y-2">
-                <a href="dashboard.html" class="block py-2.5 px-4 rounded text-slate-300 hover:bg-slate-700">Dashboard</a>
-                <a href="devices.html" class="block py-2.5 px-4 rounded text-slate-300 hover:bg-slate-700">Devices</a>
-                <a href="traffic.html" class="block py-2.5 px-4 rounded text-slate-300 hover:bg-slate-700">Traffic</a>
-                <a href="reports.html" class="block py-2.5 px-4 rounded bg-sky-600 text-white font-medium">Reports</a>
+            <h2>KIS Portal</h2>
+            <nav>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="devices.html">Devices</a>
+                <a href="traffic.html">Traffic</a>
+                <a href="reports.html" class="active">Reports</a>
             </nav>
         </div>
-        <button type="button" onclick="logout()" class="w-full bg-red-600 hover:bg-red-500 text-white font-medium py-2 rounded transition">Logout</button>
+        <button type="button" onclick="logout()" class="btn-logout">Logout</button>
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 p-10">
-        <header class="flex justify-between items-center mb-8 pb-4 border-b border-slate-800">
-            <h1 class="text-3xl font-bold">Network Reports & Logs</h1>
-            <div class="space-x-3">
-                <button type="button" onclick="saveAllReportsWord()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded text-sm font-medium transition">Save All as Word</button>
-                <button type="button" onclick="openAddModal()" class="bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded text-sm font-medium transition">Create Report</button>
+    <main>
+        <header>
+            <h1>Network Reports & Logs</h1>
+            <div class="header-actions">
+                <button type="button" onclick="saveAllReportsWord()" class="btn btn-success">Save All as Word</button>
+                <button type="button" onclick="openAddModal()" class="btn btn-primary">Create Report</button>
             </div>
         </header>
 
-        <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow">
-            <table class="w-full text-left border-collapse">
+        <div class="table-card">
+            <table>
                 <thead>
-                    <tr class="bg-slate-700/50 text-slate-400 text-sm border-b border-slate-700">
-                        <th class="p-4">Report Title</th>
-                        <th class="p-4">Date Generated</th>
-                        <th class="p-4">Type</th>
-                        <th class="p-4 text-right">Actions</th>
+                    <tr>
+                        <th>Report Title</th>
+                        <th>Date Generated</th>
+                        <th>Type</th>
+                        <th class="text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody id="reports-table-body" class="divide-y divide-slate-700"></tbody>
+                <tbody id="reports-table-body"></tbody>
             </table>
         </div>
     </main>
 
     <!-- Modal -->
-    <div id="report-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-        <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 w-full max-w-md">
-            <h2 id="modal-title" class="text-xl font-bold mb-4">Create Report</h2>
+    <div id="report-modal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h2 id="modal-title">Create Report</h2>
             <input type="hidden" id="report-index">
-            <div class="mb-4">
-                <label class="block text-sm mb-1">Report Title</label>
-                <input type="text" id="rep-title" placeholder="Enter report title" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded">
+            <div class="form-group">
+                <label>Report Title</label>
+                <input type="text" id="rep-title" placeholder="Enter report title">
             </div>
-            <div class="mb-4">
-                <label class="block text-sm mb-1">Date</label>
-                <input type="date" id="rep-date" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded">
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="rep-date">
             </div>
-            <div class="mb-6">
-                <label class="block text-sm mb-1">Type</label>
-                <input type="text" id="rep-type" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded">
+            <div class="form-group">
+                <label>Type</label>
+                <input type="text" id="rep-type">
             </div>
-            <div class="flex justify-end space-x-3">
-                <button type="button" onclick="closeModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded">Cancel</button>
-                <button type="button" onclick="saveReport()" class="px-4 py-2 bg-sky-600 hover:bg-sky-500 rounded">Save</button>
+            <div class="modal-footer">
+                <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+                <button type="button" onclick="saveReport()" class="btn btn-primary">Save</button>
             </div>
         </div>
     </div>
@@ -83,14 +134,14 @@
             tbody.innerHTML = '';
             reports.forEach((r, index) => {
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-700/20">
-                        <td class="p-4 font-medium">${r.title}</td>
-                        <td class="p-4 text-slate-300">${r.date}</td>
-                        <td class="p-4 text-sky-400">${r.type}</td>
-                        <td class="p-4 text-right space-x-3">
-                            <button type="button" onclick="saveSingleReportWord(${index})" class="text-emerald-400 hover:underline">Save</button>
-                            <button type="button" onclick="openEditModal(${index})" class="text-sky-400 hover:underline">Edit</button>
-                            <button type="button" onclick="deleteReport(${index})" class="text-red-400 hover:underline">Delete</button>
+                    <tr>
+                        <td style="font-weight: 500;">${r.title}</td>
+                        <td style="color: #cbd5e1;">${r.date}</td>
+                        <td class="type-badge">${r.type}</td>
+                        <td class="text-right">
+                            <button type="button" onclick="saveSingleReportWord(${index})" class="action-btn text-save">Save</button>
+                            <button type="button" onclick="openEditModal(${index})" class="action-btn text-edit">Edit</button>
+                            <button type="button" onclick="deleteReport(${index})" class="action-btn text-delete">Delete</button>
                         </td>
                     </tr>
                 `;
@@ -148,43 +199,3 @@
         }
 
         function saveAllReportsWord() {
-            if (reports.length === 0) return alert('No reports available to save.');
-            const rows = reports.map(r => `
-                <tr>
-                    <td>${r.title}</td>
-                    <td>${r.date}</td>
-                    <td>${r.type}</td>
-                </tr>
-            `).join('');
-
-            const content = `
-                <h3>All Network Reports & Logs</h3>
-                <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; border-color: #cbd5e1;">
-                    <thead>
-                        <tr style="background-color: #f1f5f9;">
-                            <th style="text-align: left;">Report Title</th>
-                            <th style="text-align: left;">Date Generated</th>
-                            <th style="text-align: left;">Type</th>
-                        </tr>
-                    </thead>
-                    <tbody>${rows}</tbody>
-                </table>
-            `;
-            downloadWordDoc('KIS_Network_Reports', content);
-        }
-
-        function openAddModal() {
-            document.getElementById('modal-title').innerText = 'Create Report';
-            document.getElementById('report-index').value = '';
-            document.getElementById('rep-title').value = '';
-            document.getElementById('rep-date').value = new Date().toISOString().split('T')[0];
-            document.getElementById('rep-type').value = 'Performance';
-            document.getElementById('report-modal').classList.remove('hidden');
-        }
-
-        function openEditModal(index) {
-            document.getElementById('modal-title').innerText = 'Edit Report';
-            document.getElementById('report-index').value = index;
-            document.getElementById('rep-title').value = reports[index].title;
-            document.getElementById('rep-date').value = reports[index].date;
-            document.getElementById('rep-type').value = reports[index].type;
