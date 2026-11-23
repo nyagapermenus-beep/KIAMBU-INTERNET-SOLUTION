@@ -39,7 +39,7 @@
         .type-badge { color: #38bdf8; }
         .action-btn { background: none; border: none; cursor: pointer; font-size: 0.95rem; margin-left: 12px; }
         .action-btn:hover { text-decoration: underline; }
-        .text-save { color: #34d399; }
+        .text-save { color: #34d399; font-weight: 600; }
         .text-edit { color: #38bdf8; }
         .text-delete { color: #f87171; }
 
@@ -116,62 +116,61 @@
     </div>
 
     <script>
-        if (!localStorage.getItem('kis_logged_in')) {
-            window.location.href = 'index.html';
-        }
-
-        const defaultReports = [
+        var reports = [
             { title: 'Monthly Bandwidth Audit - Nov', date: '2026-11-01', type: 'Audit' },
             { title: 'Node Outage Incident Log', date: '2026-11-05', type: 'Incident' }
         ];
 
-        let reports = defaultReports;
         try {
-            const raw = localStorage.getItem('kis_reports');
-            if (raw) {
-                const parsed = JSON.parse(raw);
-                if (Array.isArray(parsed)) {
-                    reports = parsed.filter(item => item && typeof item.title === 'string' && typeof item.date === 'string');
+            var saved = localStorage.getItem('kis_reports');
+            if (saved) {
+                var parsed = JSON.parse(saved);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    reports = parsed;
                 }
             }
-        } catch (err) {
-            localStorage.removeItem('kis_reports');
+        } catch (e) {}
+
+        function saveToStorage() {
+            try {
+                localStorage.setItem('kis_reports', JSON.stringify(reports));
+            } catch (e) {}
         }
 
         function getTodayDate() {
-            const d = new Date();
-            const year = d.getFullYear();
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            return year + '-' + month + '-' + day;
+            var d = new Date();
+            var y = d.getFullYear();
+            var m = String(d.getMonth() + 1).padStart(2, '0');
+            var day = String(d.getDate()).padStart(2, '0');
+            return y + '-' + m + '-' + day;
         }
 
         function renderReports() {
-            const tbody = document.getElementById('reports-table-body');
+            var tbody = document.getElementById('reports-table-body');
             tbody.innerHTML = '';
 
-            reports.forEach(function(r, index) {
-                const tr = document.createElement('tr');
+            for (var i = 0; i < reports.length; i++) {
+                var r = reports.slice(i, i + 1).pop();
+                var tr = document.createElement('tr');
                 tr.innerHTML =
                     '<td style="font-weight: 500;">' + r.title + '</td>' +
                     '<td style="color: #cbd5e1;">' + r.date + '</td>' +
                     '<td class="type-badge">' + r.type + '</td>' +
                     '<td class="text-right">' +
-                        '<button type="button" onclick="saveSingleReportWord(' + index + ')" class="action-btn text-save">Save</button>' +
-                        '<button type="button" onclick="openEditModal(' + index + ')" class="action-btn text-edit">Edit</button>' +
-                        '<button type="button" onclick="deleteReport(' + index + ')" class="action-btn text-delete">Delete</button>' +
+                        '<button type="button" onclick="saveWord(' + i + ')" class="action-btn text-save">Save</button>' +
+                        '<button type="button" onclick="openEditModal(' + i + ')" class="action-btn text-edit">Edit</button>' +
+                        '<button type="button" onclick="deleteReport(' + i + ')" class="action-btn text-delete">Delete</button>' +
                     '</td>';
                 tbody.appendChild(tr);
-            });
-
-            localStorage.setItem('kis_reports', JSON.stringify(reports));
+            }
+            saveToStorage();
         }
 
-        function saveSingleReportWord(index) {
-            const r = reports.slice(index, index + 1).pop();
+        function saveWord(index) {
+            var r = reports.slice(index, index + 1).pop();
             if (!r) return;
 
-            const wordHtml =
+            var docContent =
                 "<html xmlns:o='urn:schemas-microsoft-com:office:office' " +
                 "xmlns:w='urn:schemas-microsoft-com:office:word' " +
                 "xmlns='http://w3.org'>" +
@@ -188,12 +187,17 @@
                 "</table>" +
                 "</body></html>";
 
-            const safeFilename = r.title.replace(/[^a-z0-9_-]/gi, '_') + '.doc';
-            const link = document.createElement('a');
-            link.download = safeFilename;
-            link.style.display = 'none';
+            var filename = r.title.replace(/[^a-z0-9_-]/gi, '_') + '.doc';
+            var blob = new Blob(['\ufeff', docContent], { type: 'application/msword' });
+            var url = URL.createObjectURL(blob);
 
-            try {
-                const blob = new Blob(['\ufeff', wordHtml], { type: 'application/msword;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
-                link.href = url;
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+        }
+
+        function openAddModal() {
